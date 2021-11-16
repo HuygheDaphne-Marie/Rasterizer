@@ -93,11 +93,16 @@
     <ClInclude Include="EVector2.h" />
     <ClInclude Include="EVector3.h" />
     <ClInclude Include="EVector4.h" />
+    <ClInclude Include="Geometry.h" />
+    <ClInclude Include="MathHelper.h" />
+    <ClInclude Include="Triangle.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ERenderer.cpp" />
     <ClCompile Include="ETimer.cpp" />
+    <ClCompile Include="Geometry.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Triangle.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

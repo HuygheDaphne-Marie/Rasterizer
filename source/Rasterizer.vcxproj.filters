@@ -11,6 +11,9 @@
     <Filter Include="Helpers">
       <UniqueIdentifier>{72056cb6-72a2-42b7-b05e-376f1ddd957e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Geometry">
+      <UniqueIdentifier>{ae419a42-5f63-4ba7-9c50-3e574e55b09d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EMath.h">
@@ -64,6 +67,13 @@
     <ClInclude Include="ETimer.h">
       <Filter>Helpers</Filter>
     </ClInclude>
+    <ClInclude Include="Geometry.h">
+      <Filter>Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Triangle.h" />
+    <ClInclude Include="MathHelper.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ERenderer.cpp">
@@ -72,6 +82,12 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ETimer.cpp">
       <Filter>Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="Geometry.cpp">
+      <Filter>Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Triangle.cpp">
+      <Filter>Math</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

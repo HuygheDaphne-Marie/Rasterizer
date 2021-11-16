@@ -24,15 +24,15 @@ void Elite::Renderer::Render()
 	SDL_LockSurface(m_pBackBuffer);
 
 	//Loop over all the pixels
-	for (uint32_t r = 0; r < m_Height; ++r)
+	for (uint32_t row = 0; row < m_Height; ++row)
 	{
-		for (uint32_t c = 0; c < m_Width; ++c)
+		for (uint32_t col = 0; col < m_Width; ++col)
 		{
 			//Fill the pixels - pixel access demo
-			float cw = (255.0f / m_Width) * c;
-			float ch = (255.0f / m_Height) * r;
+			float cw = (255.0f / m_Width) * col;
+			float ch = (255.0f / m_Height) * row;
 			uint8_t uColor = static_cast<uint8_t>((cw + ch) / 2.0f);
-			m_pBackBufferPixels[c + (r * m_Width)] = SDL_MapRGB(m_pBackBuffer->format,
+			m_pBackBufferPixels[col + (row * m_Width)] = SDL_MapRGB(m_pBackBuffer->format,
 				static_cast<uint8_t>(uColor),
 				static_cast<uint8_t>(uColor),
 				static_cast<uint8_t>(uColor));
