@@ -95,6 +95,8 @@
     <ClInclude Include="EVector4.h" />
     <ClInclude Include="Geometry.h" />
     <ClInclude Include="MathHelper.h" />
+    <ClInclude Include="SceneGraph.h" />
+    <ClInclude Include="SceneManager.h" />
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="Triangle.h" />
   </ItemGroup>
@@ -103,6 +105,8 @@
     <ClCompile Include="ETimer.cpp" />
     <ClCompile Include="Geometry.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="SceneGraph.cpp" />
+    <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="Singleton.cpp" />
     <ClCompile Include="Triangle.cpp" />
   </ItemGroup>

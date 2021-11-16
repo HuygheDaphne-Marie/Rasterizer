@@ -76,11 +76,19 @@
     <ClInclude Include="Geometry.h">
       <Filter>Geometry</Filter>
     </ClInclude>
-    <ClInclude Include="Triangle.h" />
     <ClInclude Include="MathHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
-    <ClInclude Include="Singleton.h" />
+    <ClInclude Include="Singleton.h">
+      <Filter>Singleton</Filter>
+    </ClInclude>
+    <ClInclude Include="Triangle.h">
+      <Filter>Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneManager.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneGraph.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ERenderer.cpp">
@@ -93,10 +101,16 @@
     <ClCompile Include="Geometry.cpp">
       <Filter>Geometry</Filter>
     </ClCompile>
-    <ClCompile Include="Triangle.cpp">
-      <Filter>Math</Filter>
-    </ClCompile>
     <ClCompile Include="Singleton.cpp">
+      <Filter>Singleton</Filter>
+    </ClCompile>
+    <ClCompile Include="Triangle.cpp">
+      <Filter>Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneManager.cpp">
+      <Filter>Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneGraph.cpp">
       <Filter>Math</Filter>
     </ClCompile>
   </ItemGroup>
