@@ -20,6 +20,9 @@
     <Filter Include="Singleton">
       <UniqueIdentifier>{88b3818d-2013-4d39-9722-76157c51b344}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Camera">
+      <UniqueIdentifier>{d8b57d91-b845-4b62-83ca-7494e7e6ceec}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EMath.h">
@@ -91,6 +94,7 @@
     <ClInclude Include="SceneGraph.h">
       <Filter>Scene</Filter>
     </ClInclude>
+    <ClInclude Include="ECamera.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ERenderer.cpp">
@@ -114,6 +118,9 @@
     </ClCompile>
     <ClCompile Include="SceneGraph.cpp">
       <Filter>Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="ECamera.cpp">
+      <Filter>Math</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
