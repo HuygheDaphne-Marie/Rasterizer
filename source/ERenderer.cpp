@@ -5,6 +5,7 @@
 //Project includes
 #include "ERenderer.h"
 #include "ERGBColor.h"
+#include "SceneManager.h"
 
 Elite::Renderer::Renderer(SDL_Window * pWindow)
 {
@@ -16,26 +17,49 @@ Elite::Renderer::Renderer(SDL_Window * pWindow)
 	m_Width = static_cast<uint32_t>(width);
 	m_Height = static_cast<uint32_t>(height);
 	m_pBackBuffer = SDL_CreateRGBSurface(0, m_Width, m_Height, 32, 0, 0, 0, 0);
-	m_pBackBufferPixels = (uint32_t*)m_pBackBuffer->pixels;
+	m_pBackBufferPixels = static_cast<uint32_t*>(m_pBackBuffer->pixels);
 }
 
 void Elite::Renderer::Render()
 {
 	SDL_LockSurface(m_pBackBuffer);
 
-	//Loop over all the pixels
-	for (uint32_t row = 0; row < m_Height; ++row)
+	const SceneGraph& activeScene{ SceneManager::GetInstance().GetActiveScene() };
+
+	for (const Geometry* geometry : activeScene.GetGeometries())
 	{
-		for (uint32_t col = 0; col < m_Width; ++col)
+		//Loop over all the pixels
+		FPoint2 pixel{};
+
+		for (uint32_t row = 0; row < m_Height; ++row)
 		{
-			//Fill the pixels - pixel access demo
-			float cw = (255.0f / m_Width) * col;
-			float ch = (255.0f / m_Height) * row;
-			uint8_t uColor = static_cast<uint8_t>((cw + ch) / 2.0f);
-			m_pBackBufferPixels[col + (row * m_Width)] = SDL_MapRGB(m_pBackBuffer->format,
-				static_cast<uint8_t>(uColor),
-				static_cast<uint8_t>(uColor),
-				static_cast<uint8_t>(uColor));
+			pixel.y = static_cast<float>(row);
+
+			for (uint32_t col = 0; col < m_Width; ++col)
+			{
+				pixel.x = static_cast<float>(col);
+
+				if (pixel.x == m_Width / 2 && pixel.y == m_Height / 2)
+				{
+					int a = 15;
+					a++;
+				}
+
+				if (geometry->Hit(pixel))
+				{
+					m_pBackBufferPixels[col + (row * m_Width)] = SDL_MapRGB(m_pBackBuffer->format,
+						255.f,
+						255.f,
+						255.f);
+				}
+				else
+				{
+					m_pBackBufferPixels[col + (row * m_Width)] = SDL_MapRGB(m_pBackBuffer->format,
+						0,
+						0,
+						0);
+				}
+			}
 		}
 	}
 

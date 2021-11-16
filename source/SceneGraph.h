@@ -7,9 +7,12 @@ using namespace Elite;
 class SceneGraph final
 {
 public:
-	void AddGeometryToScene(Geometry&& geometry);
-	const std::vector<Geometry>& GetGeometries() const;
+	// Todo: rule of 5
+	~SceneGraph();
+
+	void AddGeometryToScene(Geometry* geometry);
+	const std::vector<Geometry*>& GetGeometries() const;
 
 private:
-	std::vector<Geometry> m_pGeometries{};
+	std::vector<Geometry*> m_pGeometries{};
 };

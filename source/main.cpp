@@ -11,6 +11,11 @@
 #include "ETimer.h"
 #include "ERenderer.h"
 
+// Own includes
+#include "MathHelper.h"
+#include "SceneManager.h"
+#include "Triangle.h"
+
 void ShutDown(SDL_Window* pWindow)
 {
 	SDL_DestroyWindow(pWindow);
@@ -37,9 +42,22 @@ int main(int argc, char* args[])
 	if (!pWindow)
 		return 1;
 
+	//Initialize own classes
+	SceneManager& sceneManager{ SceneManager::GetInstance() };
+
 	//Initialize "framework"
 	Elite::Timer* pTimer = new Elite::Timer();
 	Elite::Renderer* pRenderer = new Elite::Renderer(pWindow);
+
+	// Set up Scenes
+	{
+		SceneGraph& scene{ sceneManager.GetActiveScene() };
+		const FPoint3 v0{ NDCPointToScreenSpace(FPoint3{0.f, 0.5f, -1.0f}, width, height) };
+		const FPoint3 v1{ NDCPointToScreenSpace(FPoint3{-0.5f, -0.5f, -1.0f}, width, height) };
+		const FPoint3 v2{ NDCPointToScreenSpace(FPoint3{0.5f, -0.5f, -1.0f}, width, height) };
+		scene.AddGeometryToScene(new Triangle(FPoint3{ 0,0,0 }, RGBColor{ 1,1,1 }, v0, v1, v2));
+	}
+	
 
 	//Start loop
 	pTimer->Start();
