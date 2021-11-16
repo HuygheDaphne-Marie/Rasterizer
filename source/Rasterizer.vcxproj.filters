@@ -14,6 +14,12 @@
     <Filter Include="Geometry">
       <UniqueIdentifier>{ae419a42-5f63-4ba7-9c50-3e574e55b09d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Scene">
+      <UniqueIdentifier>{113a4747-4701-486a-835e-491817612337}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Singleton">
+      <UniqueIdentifier>{88b3818d-2013-4d39-9722-76157c51b344}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EMath.h">
@@ -74,6 +80,7 @@
     <ClInclude Include="MathHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
+    <ClInclude Include="Singleton.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ERenderer.cpp">
@@ -87,6 +94,9 @@
       <Filter>Geometry</Filter>
     </ClCompile>
     <ClCompile Include="Triangle.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Singleton.cpp">
       <Filter>Math</Filter>
     </ClCompile>
   </ItemGroup>
