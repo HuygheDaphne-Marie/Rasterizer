@@ -3,14 +3,21 @@
 class Triangle final : public Geometry
 {
 public:
-	Triangle(const FPoint3& position, const RGBColor& color, const FPoint3& v0, const FPoint3& v1, const FPoint3& v2);
+	Triangle(const FPoint3& position, const FPoint3& v0, const FPoint3& v1, const FPoint3& v2);
 
 	bool Hit(const FPoint2& pixel) const override;
 
 private:
-	// vertices stored in screen space
-	FPoint3 m_Vertex0;
-	FPoint3 m_Vertex1;
-	FPoint3 m_Vertex2;
+	const FPoint3 m_ModelVertex0;
+	const FPoint3 m_ModelVertex1;
+	const FPoint3 m_ModelVertex2;
+
+	FPoint3 m_WorldVertex0;
+	FPoint3 m_WorldVertex1;
+	FPoint3 m_WorldVertex2;
+
+	void RecalculateWorldVertices();
+
+	void OnRecalculateTransform() override;
 };
 

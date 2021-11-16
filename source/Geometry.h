@@ -7,13 +7,25 @@ using namespace Elite;
 class Geometry
 {
 public:
-	Geometry(const FPoint3& position, const RGBColor& color);
+	explicit Geometry(FPoint3 position, FVector3 forward = FVector3{0,0,1});
 	virtual ~Geometry() = default;
 
 	virtual bool Hit(const FPoint2& pixel) const = 0;
 
-private:
+	const FPoint3& GetPosition() const;
+	void SetPosition(const FPoint3& position); // Maybe add option to avoid recalculation
+
+	const FVector3& GetForward() const;
+	void SetForward(const FVector3& forward); // Maybe add option to avoid recalculation
+
+protected:
 	FMatrix4 m_Transform;
-	RGBColor m_Color; // Todo: remove this
+
+	virtual void OnRecalculateTransform();
+	void RecalculateTransform();
+
+private:
+	FPoint3 m_Position;
+	FVector3 m_Forward;
 };
 
