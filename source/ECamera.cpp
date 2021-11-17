@@ -3,7 +3,7 @@
 
 namespace Elite
 {
-	Camera::Camera(const FPoint3& position, const FVector3& viewForward, float fovAngle) :
+	Camera::Camera(const int screenWidth, const int screenHeight, const FPoint3& position, const FVector3& viewForward, float fovAngle) :
 		m_Fov(tanf((fovAngle* float(E_TO_RADIANS)) / 2.f)),
 		m_Position{ position },
 		m_ViewForward{GetNormalized(-viewForward)}

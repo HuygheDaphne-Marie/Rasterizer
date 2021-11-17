@@ -18,3 +18,12 @@ inline Elite::FPoint3 NDCPointToScreenSpace(const Elite::FPoint3& NDCPoint, floa
 	screenSpacePoint.y = NDCSpaceYToScreenSpaceY(NDCPoint.y, screenHeight);
 	return screenSpacePoint;
 }
+
+inline float CalculateScreenSpaceX(const float x, const int screenWidth) // x
+{
+	return (x + 1) / 2 * screenWidth;
+}
+inline float CalculateScreenSpaceY(const float y, const int screenHeight) // y
+{
+	return (1 - y) / 2 * screenHeight;
+}

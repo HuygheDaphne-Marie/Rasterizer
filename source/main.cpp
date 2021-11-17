@@ -34,7 +34,7 @@ int main(int argc, char* args[])
 	const uint32_t width = 640;
 	const uint32_t height = 480;
 	SDL_Window* pWindow = SDL_CreateWindow(
-		"Rasterizer - Henri-Thibault Huyghe",
+		"Rasterizer - Henri-Thibault Huyghe - 2DAE06",
 		SDL_WINDOWPOS_UNDEFINED,
 		SDL_WINDOWPOS_UNDEFINED,
 		width, height, 0);
@@ -51,11 +51,17 @@ int main(int argc, char* args[])
 
 	// Set up Scenes
 	{
+		//const FPoint3 v0{ NDCPointToScreenSpace(FPoint3{0.f, 0.5f, -1.0f}, width, height) };
+		//const FPoint3 v1{ NDCPointToScreenSpace(FPoint3{-0.5f, -0.5f, -1.0f}, width, height) };
+		//const FPoint3 v2{ NDCPointToScreenSpace(FPoint3{0.5f, -0.5f, -1.0f}, width, height) };
+
 		SceneGraph& scene{ sceneManager.GetActiveScene() };
-		const FPoint3 v0{ NDCPointToScreenSpace(FPoint3{0.f, 0.5f, -1.0f}, width, height) };
-		const FPoint3 v1{ NDCPointToScreenSpace(FPoint3{-0.5f, -0.5f, -1.0f}, width, height) };
-		const FPoint3 v2{ NDCPointToScreenSpace(FPoint3{0.5f, -0.5f, -1.0f}, width, height) };
-		scene.AddGeometryToScene(new Triangle(FPoint3{ 0,0,0 }, RGBColor{ 1,1,1 }, v0, v1, v2));
+		scene.SetCamera(new Camera(width, height));
+
+		const FPoint3 v0{ FPoint3{0.f, 2.0f, 0.0f} };
+		const FPoint3 v1{ FPoint3{-1.0f, 0.0f, 0.0f} };
+		const FPoint3 v2{ FPoint3{1.0f, 0.0f, 0.0f} };
+		scene.AddGeometryToScene(new Triangle(FPoint3{ 0,0,0 }, v0, v1, v2));
 	}
 	
 
@@ -81,6 +87,8 @@ int main(int argc, char* args[])
 				break;
 			}
 		}
+
+		sceneManager.GetActiveScene().GetCamera()->Update(pTimer->GetElapsed());
 
 		//--------- Render ---------
 		pRenderer->Render();

@@ -14,7 +14,7 @@ namespace Elite
 	{
 	public:
 
-		Camera(const FPoint3& position = { 0.f, 0.f, 10.f }, const FVector3& viewForward = { 0.f, 0.f, -1.f }, float fovAngle = 60.f);
+		Camera(const int screenWidth, const int screenHeight, const FPoint3& position = { 0.f, 0.f, 10.f }, const FVector3& viewForward = { 0.f, 0.f, -1.f }, float fovAngle = 60.f);
 		~Camera() = default;
 
 		Camera(const Camera&) = delete;
@@ -27,7 +27,7 @@ namespace Elite
 		const FMatrix4& GetWorldToView() const { return m_WorldToView; }
 		const FMatrix4& GetViewToWorld() const { return m_ViewToWorld; }
 
-		const float GetFov() const { return m_Fov; }
+		float GetFov() const { return m_Fov; }
 
 	private:
 		void CalculateLookAt();

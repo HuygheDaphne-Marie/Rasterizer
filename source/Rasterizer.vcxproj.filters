@@ -94,7 +94,9 @@
     <ClInclude Include="SceneGraph.h">
       <Filter>Scene</Filter>
     </ClInclude>
-    <ClInclude Include="ECamera.h" />
+    <ClInclude Include="ECamera.h">
+      <Filter>Camera</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ERenderer.cpp">
@@ -120,7 +122,7 @@
       <Filter>Scene</Filter>
     </ClCompile>
     <ClCompile Include="ECamera.cpp">
-      <Filter>Math</Filter>
+      <Filter>Camera</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
