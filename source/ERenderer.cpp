@@ -39,13 +39,13 @@ void Elite::Renderer::Render()
 			{
 				pixel.x = static_cast<float>(col);
 
-
-				if (geometry->Hit(pixel, activeScene.GetCamera()->GetWorldToView()))
+				RGBColor finalColor{};
+				if (geometry->Hit(pixel, finalColor))
 				{
 					m_pBackBufferPixels[col + (row * m_Width)] = SDL_MapRGB(m_pBackBuffer->format,
-						255.f,
-						255.f,
-						255.f);
+						static_cast<Uint8>(finalColor.r * 255.f),
+						static_cast<Uint8>(finalColor.g * 255.f),
+						static_cast<Uint8>(finalColor.b * 255.f));
 				}
 				else
 				{

@@ -27,12 +27,18 @@ namespace Elite
 		const FMatrix4& GetWorldToView() const { return m_WorldToView; }
 		const FMatrix4& GetViewToWorld() const { return m_ViewToWorld; }
 
+		int GetScreenWidth() const { return m_Width; }
+		int GetScreenHeight() const { return m_Height; }
+		float GetAspectRatio() const { return m_AspectRatio; }
 		float GetFov() const { return m_Fov; }
 
 	private:
 		void CalculateLookAt();
 
-		float m_Fov{};
+		const int m_Width{};
+		const int m_Height{};
+		const float m_AspectRatio{};
+		const float m_Fov{};
 
 		const float m_KeyboardMoveSensitivity{ 1.f };
 		const float m_KeyboardMoveMultiplier{ 10.f };

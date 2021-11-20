@@ -46,8 +46,8 @@ int main(int argc, char* args[])
 	SceneManager& sceneManager{ SceneManager::GetInstance() };
 
 	//Initialize "framework"
-	Elite::Timer* pTimer = new Elite::Timer();
-	Elite::Renderer* pRenderer = new Elite::Renderer(pWindow);
+	Timer* pTimer = new Timer();
+	Renderer* pRenderer = new Renderer(pWindow);
 
 	// Set up Scenes
 	{
@@ -58,10 +58,13 @@ int main(int argc, char* args[])
 		SceneGraph& scene{ sceneManager.GetActiveScene() };
 		scene.SetCamera(new Camera(width, height));
 
-		const FPoint3 v0{ FPoint3{0.f, 2.0f, 0.0f} };
-		const FPoint3 v1{ FPoint3{-1.0f, 0.0f, 0.0f} };
-		const FPoint3 v2{ FPoint3{1.0f, 0.0f, 0.0f} };
-		scene.AddGeometryToScene(new Triangle(FPoint3{ 0,0,0 }, v0, v1, v2));
+		const FPoint3 v0{ FPoint3{0.f, 4.0f, -2.0f} };
+		const FPoint3 v1{ FPoint3{-2.0f, -2.0f, -2.0f} };
+		const FPoint3 v2{ FPoint3{3.0f, -2.0f, -2.0f} };
+		scene.AddGeometryToScene(new Triangle(FPoint3{ 0,0,0 }, 
+			v0, RGBColor{1,0,0}, 
+			v1, RGBColor{0,1,0}, 
+			v2, RGBColor{0,0,1}));
 	}
 	
 

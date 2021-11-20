@@ -30,6 +30,11 @@ void Geometry::SetForward(const FVector3& forward)
 	RecalculateTransform();
 }
 
+const FMatrix4& Geometry::GetTransform() const
+{
+	return m_Transform;
+}
+
 void Geometry::OnRecalculateTransform() {} // Does nothing by default
 
 void Geometry::RecalculateTransform()

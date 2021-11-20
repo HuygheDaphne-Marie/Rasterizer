@@ -97,6 +97,9 @@
     <ClInclude Include="ECamera.h">
       <Filter>Camera</Filter>
     </ClInclude>
+    <ClInclude Include="Vertex.h">
+      <Filter>Geometry</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ERenderer.cpp">

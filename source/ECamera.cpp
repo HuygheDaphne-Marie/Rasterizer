@@ -4,6 +4,9 @@
 namespace Elite
 {
 	Camera::Camera(const int screenWidth, const int screenHeight, const FPoint3& position, const FVector3& viewForward, float fovAngle) :
+		m_Width(screenWidth),
+		m_Height(screenHeight),
+		m_AspectRatio{ static_cast<float>(screenHeight) / static_cast<float>(screenWidth) },
 		m_Fov(tanf((fovAngle* float(E_TO_RADIANS)) / 2.f)),
 		m_Position{ position },
 		m_ViewForward{GetNormalized(-viewForward)}
