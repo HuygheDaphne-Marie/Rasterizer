@@ -2,7 +2,6 @@
 
 #include "MathHelper.h"
 #include "SceneManager.h"
-#include "Vertex.h"
 
 Triangle::Triangle(const FPoint3& position, 
 	const FPoint3& v0, const RGBColor& c0,
@@ -22,47 +21,26 @@ Triangle::Triangle(const FPoint3& position,
 bool Triangle::Hit(const FPoint2& pixel, RGBColor& finalColor) const
 {
 	SceneGraph& activeScene{ SceneManager::GetInstance().GetActiveScene() };
-	const FMatrix4 worldToView{ activeScene.GetCamera()->GetWorldToView() };
+	Camera* pCamera{ activeScene.GetCamera() };
+	const FMatrix4& worldToView{ pCamera->GetWorldToView() };
 
-	// should be member?
+	// Transform to viewSpace and make vertices out of points
 	Vertex vertex0{FPoint3{worldToView * FPoint4(m_WorldVertex0, 1)}, m_Color0};
 	Vertex vertex1{FPoint3{worldToView * FPoint4(m_WorldVertex1, 1)}, m_Color1};
 	Vertex vertex2{FPoint3{worldToView * FPoint4(m_WorldVertex2, 1)}, m_Color2};
 
-	// camera correction
-	const float fov = activeScene.GetCamera()->GetFov();
-	const float aspectRatio = activeScene.GetCamera()->GetAspectRatio();
-
-	vertex0.position.x /= aspectRatio * fov;
-	vertex0.position.y /= fov;
-
-	vertex1.position.x /= aspectRatio * fov;
-	vertex1.position.y /= fov;
-
-	vertex2.position.x /= aspectRatio * fov;
-	vertex2.position.y /= fov;
-
-	// Perspective divide
-	vertex0.position.x = vertex0.position.x / -vertex0.position.z;
-	vertex0.position.y = vertex0.position.y / -vertex0.position.z;
-
-	vertex1.position.x = vertex1.position.x / -vertex1.position.z;
-	vertex1.position.y = vertex1.position.y / -vertex1.position.z;
-
-	vertex2.position.x = vertex2.position.x / -vertex2.position.z;
-	vertex2.position.y = vertex2.position.y / -vertex2.position.z;
-
-	vertex0.position.z *= -1;
-	vertex1.position.z *= -1;
-	vertex2.position.z *= -1;
+	// bring vertices to projection space
+	ApplyCameraCorrection(pCamera->GetFov(), pCamera->GetAspectRatio(), vertex0, vertex1, vertex2);
+	ApplyPerspectiveDivide(vertex0, vertex1, vertex2);
 
 	// to screen space
-	const int width{ activeScene.GetCamera()->GetScreenWidth() };
-	const int height{ activeScene.GetCamera()->GetScreenHeight() };
+	const int width{ pCamera->GetScreenWidth() };
+	const int height{ pCamera->GetScreenHeight() };
 	vertex0.position.xy = FPoint2{ CalculateScreenSpaceX(vertex0.position.x, width), CalculateScreenSpaceY(vertex0.position.y, height) };
 	vertex1.position.xy = FPoint2{ CalculateScreenSpaceX(vertex1.position.x, width), CalculateScreenSpaceY(vertex1.position.y, height) };
 	vertex2.position.xy = FPoint2{ CalculateScreenSpaceX(vertex2.position.x, width), CalculateScreenSpaceY(vertex2.position.y, height) };
 
+	// Hit check
 	// crosses point out of the screen cause of right hand rule
 	FVector2 pixelToVertex{ pixel - vertex0.position.xy };
 	FVector3 edge{ vertex1.position - vertex0.position };
@@ -79,14 +57,8 @@ bool Triangle::Hit(const FPoint2& pixel, RGBColor& finalColor) const
 	if (Cross(edge.xy, pixelToVertex) > 0.f) // edgeC
 		return false;
 
-	// barycentric coordinates
-	float area{ Cross(FVector2{vertex0.position.xy - vertex1.position.xy}, FVector2{vertex0.position.xy - vertex2.position.xy}) }; // member, recalculated
-		// swapped compared to slides so sign is positive
-	vertex0.weight = Cross(FVector2{ vertex2.position.xy - vertex1.position.xy }, FVector2{ pixel - vertex1.position.xy }) / area;
-	vertex1.weight = Cross(FVector2{ vertex0.position.xy - vertex2.position.xy }, FVector2{ pixel - vertex2.position.xy }) / area;
-	vertex2.weight = Cross(FVector2{ vertex1.position.xy - vertex0.position.xy }, FVector2{ pixel - vertex0.position.xy }) / area;
 	
-	// Set color
+	CalculateBarycentricWeights(pixel, vertex0, vertex1, vertex2);
 	finalColor = vertex0.color * vertex0.weight + vertex1.color * vertex1.weight + vertex2.color * vertex2.weight;
 	
 	return true;
@@ -111,4 +83,38 @@ void Triangle::OnRecalculateTransform()
 	RecalculateWorldVertices();
 }
 
+void Triangle::ApplyCameraCorrection(float fov, float aspectRatio, Vertex& vertex0, Vertex& vertex1, Vertex& vertex2) const
+{
+	vertex0.position.x /= aspectRatio * fov;
+	vertex0.position.y /= fov;
 
+	vertex1.position.x /= aspectRatio * fov;
+	vertex1.position.y /= fov;
+
+	vertex2.position.x /= aspectRatio * fov;
+	vertex2.position.y /= fov;
+}
+void Triangle::ApplyPerspectiveDivide(Vertex& vertex0, Vertex& vertex1, Vertex& vertex2) const
+{
+	vertex0.position.x = vertex0.position.x / -vertex0.position.z;
+	vertex0.position.y = vertex0.position.y / -vertex0.position.z;
+
+	vertex1.position.x = vertex1.position.x / -vertex1.position.z;
+	vertex1.position.y = vertex1.position.y / -vertex1.position.z;
+
+	vertex2.position.x = vertex2.position.x / -vertex2.position.z;
+	vertex2.position.y = vertex2.position.y / -vertex2.position.z;
+
+	vertex0.position.z *= -1;
+	vertex1.position.z *= -1;
+	vertex2.position.z *= -1;
+}
+void Triangle::CalculateBarycentricWeights(const FPoint2& pixel, Vertex& vertex0, Vertex& vertex1, Vertex& vertex2) const
+{
+	const float area{ Cross(FVector2{vertex0.position.xy - vertex1.position.xy}, FVector2{vertex0.position.xy - vertex2.position.xy}) };
+
+	// swapped compared to slides so sign is positive
+	vertex0.weight = Cross(FVector2{ vertex2.position.xy - vertex1.position.xy }, FVector2{ pixel - vertex1.position.xy }) / area;
+	vertex1.weight = Cross(FVector2{ vertex0.position.xy - vertex2.position.xy }, FVector2{ pixel - vertex2.position.xy }) / area;
+	vertex2.weight = Cross(FVector2{ vertex1.position.xy - vertex0.position.xy }, FVector2{ pixel - vertex0.position.xy }) / area;
+}

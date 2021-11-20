@@ -1,5 +1,7 @@
 #pragma once
 #include "Geometry.h"
+#include "Vertex.h"
+
 class Triangle final : public Geometry
 {
 public:
@@ -25,5 +27,9 @@ private:
 	void RecalculateWorldVertices();
 
 	void OnRecalculateTransform() override;
+
+	void ApplyCameraCorrection(float fov, float aspectRatio, Vertex& vertex0, Vertex& vertex1, Vertex& vertex2) const; // Make math helper function? (cause they're possible statics)
+	void ApplyPerspectiveDivide(Vertex& vertex0, Vertex& vertex1, Vertex& vertex2) const; // Make math helper function?
+	void CalculateBarycentricWeights(const FPoint2& pixel, Vertex& vertex0, Vertex& vertex1, Vertex& vertex2) const;
 };
 
