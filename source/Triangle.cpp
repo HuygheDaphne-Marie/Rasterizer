@@ -18,7 +18,7 @@ Triangle::Triangle(const FPoint3& position,
 	RecalculateWorldVertices();
 }
 
-bool Triangle::Hit(const FPoint2& pixel, RGBColor& finalColor) const
+bool Triangle::Hit(FPoint3& pixel, RGBColor& finalColor) const
 {
 	SceneGraph& activeScene{ SceneManager::GetInstance().GetActiveScene() };
 	Camera* pCamera{ activeScene.GetCamera() };
@@ -39,26 +39,30 @@ bool Triangle::Hit(const FPoint2& pixel, RGBColor& finalColor) const
 	vertex0.position.xy = FPoint2{ CalculateScreenSpaceX(vertex0.position.x, width), CalculateScreenSpaceY(vertex0.position.y, height) };
 	vertex1.position.xy = FPoint2{ CalculateScreenSpaceX(vertex1.position.x, width), CalculateScreenSpaceY(vertex1.position.y, height) };
 	vertex2.position.xy = FPoint2{ CalculateScreenSpaceX(vertex2.position.x, width), CalculateScreenSpaceY(vertex2.position.y, height) };
-
+	
 	// Hit check
 	// crosses point out of the screen cause of right hand rule
-	FVector2 pixelToVertex{ pixel - vertex0.position.xy };
+	FVector2 pixelToVertex{ pixel.xy - vertex0.position.xy };
 	FVector3 edge{ vertex1.position - vertex0.position };
 	if (Cross(edge.xy, pixelToVertex) > 0.f) // edgeA
 		return false;
 
-	pixelToVertex = pixel - vertex1.position.xy;
+	pixelToVertex = pixel.xy - vertex1.position.xy;
 	edge = { vertex2.position - vertex1.position };
 	if (Cross(edge.xy, pixelToVertex) > 0.f) // edgeB
 		return false;
 
-	pixelToVertex = pixel - vertex2.position.xy;
+	pixelToVertex = pixel.xy - vertex2.position.xy;
 	edge = { vertex0.position - vertex2.position };
 	if (Cross(edge.xy, pixelToVertex) > 0.f) // edgeC
 		return false;
 
+	CalculateBarycentricWeights(pixel.xy, vertex0, vertex1, vertex2);
+
+	// Depth test
+	float pixelDepth{ vertex0.position.z * vertex0.weight + vertex1.position.z * vertex1.weight + vertex2.position.z * vertex2.weight };
+	pixel.z = pixelDepth;
 	
-	CalculateBarycentricWeights(pixel, vertex0, vertex1, vertex2);
 	finalColor = vertex0.color * vertex0.weight + vertex1.color * vertex1.weight + vertex2.color * vertex2.weight;
 	
 	return true;

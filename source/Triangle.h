@@ -10,7 +10,7 @@ public:
 		const FPoint3& v1, const RGBColor& c1, 
 		const FPoint3& v2, const RGBColor& c2);
 
-	bool Hit(const FPoint2& pixel, RGBColor& finalColor) const override;
+	bool Hit(FPoint3& pixel, RGBColor& finalColor) const override;
 
 private:
 	const FPoint3 m_ModelVertex0;

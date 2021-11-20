@@ -51,20 +51,28 @@ int main(int argc, char* args[])
 
 	// Set up Scenes
 	{
-		//const FPoint3 v0{ NDCPointToScreenSpace(FPoint3{0.f, 0.5f, -1.0f}, width, height) };
-		//const FPoint3 v1{ NDCPointToScreenSpace(FPoint3{-0.5f, -0.5f, -1.0f}, width, height) };
-		//const FPoint3 v2{ NDCPointToScreenSpace(FPoint3{0.5f, -0.5f, -1.0f}, width, height) };
-
 		SceneGraph& scene{ sceneManager.GetActiveScene() };
 		scene.SetCamera(new Camera(width, height));
 
-		const FPoint3 v0{ FPoint3{0.f, 4.0f, -2.0f} };
-		const FPoint3 v1{ FPoint3{-2.0f, -2.0f, -2.0f} };
-		const FPoint3 v2{ FPoint3{3.0f, -2.0f, -2.0f} };
-		scene.AddGeometryToScene(new Triangle(FPoint3{ 0,0,0 }, 
-			v0, RGBColor{1,0,0}, 
-			v1, RGBColor{0,1,0}, 
-			v2, RGBColor{0,0,1}));
+		{
+			const FPoint3 v0{ FPoint3{0.f, 2.0f, 0.0f} };
+			const FPoint3 v1{ FPoint3{-1.0f, 0.0f, 0.0f} };
+			const FPoint3 v2{ FPoint3{1.0f, 0.0f, 0.0f} };
+			scene.AddGeometryToScene(new Triangle(FPoint3{ 0,0,0 },
+				v0, RGBColor{ 1,1,1 },
+				v1, RGBColor{ 1,1,1 },
+				v2, RGBColor{ 1,1,1 }));
+		}
+
+		{
+			const FPoint3 v0{ FPoint3{0.f, 4.0f, -2.0f} };
+			const FPoint3 v1{ FPoint3{-3.0f, -2.0f, -2.0f} };
+			const FPoint3 v2{ FPoint3{3.0f, -2.0f, -2.0f} };
+			scene.AddGeometryToScene(new Triangle(FPoint3{ 0,0,0 },
+				v0, RGBColor{ 1,0,0 },
+				v1, RGBColor{ 0,1,0 },
+				v2, RGBColor{ 0,0,1 }));
+		}
 	}
 	
 
@@ -72,7 +80,7 @@ int main(int argc, char* args[])
 	pTimer->Start();
 	float printTimer = 0.f;
 	bool isLooping = true;
-	bool takeScreenshot = false;
+	bool takeScreenShot = false;
 	while (isLooping)
 	{
 		//--------- Get input events ---------
@@ -86,7 +94,7 @@ int main(int argc, char* args[])
 				break;
 			case SDL_KEYUP:
 				if(e.key.keysym.scancode == SDL_SCANCODE_X)
-					takeScreenshot = true;
+					takeScreenShot = true;
 				break;
 			}
 		}
@@ -106,13 +114,13 @@ int main(int argc, char* args[])
 		}
 
 		//Save screenshot after full render
-		if (takeScreenshot)
+		if (takeScreenShot)
 		{
 			if (!pRenderer->SaveBackbufferToImage())
 				std::cout << "Screenshot saved!" << std::endl;
 			else
 				std::cout << "Something went wrong. Screenshot not saved!" << std::endl;
-			takeScreenshot = false;
+			takeScreenShot = false;
 		}
 	}
 	pTimer->Stop();

@@ -1,6 +1,7 @@
 #pragma once
 #include "EMath.h"
 #include "ERGBColor.h"
+#include <vector>
 
 using namespace Elite;
 
@@ -10,7 +11,7 @@ public:
 	explicit Geometry(FPoint3 position, FVector3 forward = FVector3{0,0,1});
 	virtual ~Geometry() = default;
 
-	virtual bool Hit(const FPoint2& pixel, RGBColor& finalColor) const = 0;
+	virtual bool Hit(FPoint3& pixel, RGBColor& finalColor) const = 0;
 
 	const FPoint3& GetPosition() const;
 	void SetPosition(const FPoint3& position); // Maybe add option to avoid recalculation
