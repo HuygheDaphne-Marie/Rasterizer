@@ -32,3 +32,16 @@ inline unsigned int PixelToBufferIndex(int col, int row, int screenWidth)
 {
 	return col + (row * screenWidth);
 }
+
+inline void LimitPointToScreenBoundaries(Elite::FPoint2& point, float width, float height)
+{
+	if (point.x < 0)
+		point.x = 0;
+	if (point.x >= width)
+		point.x = width - 1.f;
+
+	if (point.y < 0)
+		point.y = 0;
+	if (point.y >= height)
+		point.y = height - 1.f;
+}

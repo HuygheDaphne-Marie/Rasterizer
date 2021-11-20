@@ -29,41 +29,21 @@ void Renderer::Render()
 
 	const SceneGraph& activeScene{ SceneManager::GetInstance().GetActiveScene() };
 
+	// Clear buffer, could this be done better?
+	for (uint32_t row = 0; row < m_Height; ++row)
+	{
+		for (uint32_t col = 0; col < m_Width; ++col)
+		{
+			m_pBackBufferPixels[PixelToBufferIndex(col, row, m_Width)] = SDL_MapRGB(m_pBackBuffer->format,
+				0,
+				0,
+				0);
+		}
+	}
+	
 	for (const Geometry* geometry : activeScene.GetGeometries())
 	{
-		//Loop over all the pixels
-		FPoint3 pixel{};
-
-		for (uint32_t row = 0; row < m_Height; ++row)
-		{
-			pixel.y = static_cast<float>(row);
-
-			for (uint32_t col = 0; col < m_Width; ++col)
-			{
-				pixel.x = static_cast<float>(col);
-
-				RGBColor finalColor{};				
-				if (geometry->Hit(pixel, finalColor))
-				{
-					if (pixel.z < m_DepthBuffer[PixelToBufferIndex(col, row, m_Width)])
-					{
-						m_DepthBuffer[PixelToBufferIndex(col, row, m_Width)] = pixel.z;
-						
-						m_pBackBufferPixels[PixelToBufferIndex(col, row, m_Width)] = SDL_MapRGB(m_pBackBuffer->format,
-							static_cast<Uint8>(finalColor.r * 255.f),
-							static_cast<Uint8>(finalColor.g * 255.f),
-							static_cast<Uint8>(finalColor.b * 255.f));
-					}
-				}
-				else
-				{
-					m_pBackBufferPixels[PixelToBufferIndex(col, row, m_Width)] = SDL_MapRGB(m_pBackBuffer->format,
-						0,
-						0,
-						0);
-				}
-			}
-		}
+		geometry->Hit(m_DepthBuffer, m_pBackBuffer, m_pBackBufferPixels);
 	}
 
 	std::fill(m_DepthBuffer.begin(), m_DepthBuffer.end(), FLT_MAX);

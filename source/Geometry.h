@@ -1,4 +1,6 @@
 #pragma once
+#include <SDL_surface.h>
+
 #include "EMath.h"
 #include "ERGBColor.h"
 #include <vector>
@@ -11,7 +13,7 @@ public:
 	explicit Geometry(FPoint3 position, FVector3 forward = FVector3{0,0,1});
 	virtual ~Geometry() = default;
 
-	virtual bool Hit(FPoint3& pixel, RGBColor& finalColor) const = 0;
+	virtual void Hit(std::vector<float>& depthBuffer, SDL_Surface* pBackBuffer, uint32_t* pBackBufferPixels) const = 0;
 
 	const FPoint3& GetPosition() const;
 	void SetPosition(const FPoint3& position); // Maybe add option to avoid recalculation
