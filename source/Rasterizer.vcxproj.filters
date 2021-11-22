@@ -134,7 +134,7 @@
       <Filter>Camera</Filter>
     </ClCompile>
     <ClCompile Include="TriangleMesh.cpp">
-      <Filter>Math</Filter>
+      <Filter>Geometry</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
