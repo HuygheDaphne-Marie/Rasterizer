@@ -99,7 +99,9 @@
     <ClInclude Include="SceneGraph.h" />
     <ClInclude Include="SceneManager.h" />
     <ClInclude Include="Singleton.h" />
+    <ClInclude Include="TransformationHelper.h" />
     <ClInclude Include="Triangle.h" />
+    <ClInclude Include="TriangleMesh.h" />
     <ClInclude Include="Vertex.h" />
   </ItemGroup>
   <ItemGroup>
@@ -112,6 +114,7 @@
     <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="Singleton.cpp" />
     <ClCompile Include="Triangle.cpp" />
+    <ClCompile Include="TriangleMesh.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

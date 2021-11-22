@@ -28,7 +28,7 @@ inline float CalculateScreenSpaceY(const float y, const int screenHeight) // y
 	return (1 - y) / 2 * screenHeight;
 }
 
-inline unsigned int PixelToBufferIndex(int col, int row, int screenWidth)
+inline unsigned int PixelToBufferIndex(unsigned int col, unsigned int row, unsigned int screenWidth)
 {
 	return col + (row * screenWidth);
 }

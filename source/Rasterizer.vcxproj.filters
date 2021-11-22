@@ -100,6 +100,12 @@
     <ClInclude Include="Vertex.h">
       <Filter>Geometry</Filter>
     </ClInclude>
+    <ClInclude Include="TriangleMesh.h">
+      <Filter>Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="TransformationHelper.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ERenderer.cpp">
@@ -126,6 +132,9 @@
     </ClCompile>
     <ClCompile Include="ECamera.cpp">
       <Filter>Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="TriangleMesh.cpp">
+      <Filter>Math</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

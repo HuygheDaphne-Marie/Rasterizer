@@ -15,6 +15,7 @@
 #include "MathHelper.h"
 #include "SceneManager.h"
 #include "Triangle.h"
+#include "TriangleMesh.h"
 
 void ShutDown(SDL_Window* pWindow)
 {
@@ -54,24 +55,106 @@ int main(int argc, char* args[])
 		SceneGraph& scene{ sceneManager.GetActiveScene() };
 		scene.SetCamera(new Camera(width, height));
 
-		{
-			const FPoint3 v0{ FPoint3{0.f, 2.0f, 0.0f} };
-			const FPoint3 v1{ FPoint3{-1.0f, 0.0f, 0.0f} };
-			const FPoint3 v2{ FPoint3{1.0f, 0.0f, 0.0f} };
-			scene.AddGeometryToScene(new Triangle(FPoint3{ 0,0,0 },
-				v0, RGBColor{ 1,1,1 },
-				v1, RGBColor{ 1,1,1 },
-				v2, RGBColor{ 1,1,1 }));
-		}
+		// Week 1
+		//{
+		//	const FPoint3 v0{ 0.f, 2.0f, 0.0f };
+		//	const FPoint3 v1{ -1.0f, 0.0f, 0.0f };
+		//	const FPoint3 v2{ 1.0f, 0.0f, 0.0f };
+		//	scene.AddGeometryToScene(new Triangle(FPoint3{ 0,0,0 },
+		//		v0, RGBColor{ 1,1,1 },
+		//		v1, RGBColor{ 1,1,1 },
+		//		v2, RGBColor{ 1,1,1 }));
+		//}
+		//{
+		//	const FPoint3 v0{0.f, 4.0f, -2.0f};
+		//	const FPoint3 v1{-3.0f, -2.0f, -2.0f};
+		//	const FPoint3 v2{3.0f, -2.0f, -2.0f};
+		//	scene.AddGeometryToScene(new Triangle(FPoint3{ 0,0,0 },
+		//		v0, RGBColor{ 1,0,0 },
+		//		v1, RGBColor{ 0,1,0 },
+		//		v2, RGBColor{ 0,0,1 }));
+		//}
 
+		// Week 2
 		{
-			const FPoint3 v0{ FPoint3{0.f, 4.0f, -2.0f} };
-			const FPoint3 v1{ FPoint3{-3.0f, -2.0f, -2.0f} };
-			const FPoint3 v2{ FPoint3{3.0f, -2.0f, -2.0f} };
-			scene.AddGeometryToScene(new Triangle(FPoint3{ 0,0,0 },
-				v0, RGBColor{ 1,0,0 },
-				v1, RGBColor{ 0,1,0 },
-				v2, RGBColor{ 0,0,1 }));
+			const FPoint3 v0{-3, 3, -2};
+			const FPoint3 v1{0, 3, -2};
+			const FPoint3 v2{3, 3, -2};
+			const FPoint3 v3{-3, 0, -2};
+			const FPoint3 v4{0, 0, -2};
+			const FPoint3 v5{3, 0, -2};
+			const FPoint3 v6{-3, -3, -2};
+			const FPoint3 v7{0, -3, -2};
+			const FPoint3 v8{3, -3, -2};
+
+			const RGBColor white{ 1,1,1 };
+
+			std::vector<Vertex> vertices
+			{
+				{v0, white},
+				{v1, white},
+				{v2, white},
+				{v3, white},
+				{v4, white},
+				{v5, white},
+				{v6, white},
+				{v7, white},
+				{v8, white}
+			};
+			std::vector<unsigned int> indices
+			{
+				0,3,1,
+				3,1,4,
+				1,4,2,
+				4,5,2,
+
+				3,6,4,
+				6,7,4,
+				4,7,5,
+				7,8,5
+			};
+
+			scene.AddGeometryToScene(new TriangleMesh(FPoint3{ 0,0,0 }, vertices, indices));
+
+			//scene.AddGeometryToScene(new Triangle(FPoint3{ 0,0,0 },
+			//	v0, RGBColor{ 1,1,1 },
+			//	v3, RGBColor{ 1,1,1 },
+			//	v1, RGBColor{ 1,1,1 }));
+			//
+			//scene.AddGeometryToScene(new Triangle(FPoint3{ 0,0,0 },
+			//	v3, RGBColor{ 1,1,1 },
+			//	v4, RGBColor{ 1,1,1 },
+			//	v1, RGBColor{ 1,1,1 }));
+			//
+			//scene.AddGeometryToScene(new Triangle(FPoint3{ 0,0,0 },
+			//	v1, RGBColor{ 1,1,1 },
+			//	v4, RGBColor{ 1,1,1 },
+			//	v2, RGBColor{ 1,1,1 }));
+			//
+			//scene.AddGeometryToScene(new Triangle(FPoint3{ 0,0,0 },
+			//	v4, RGBColor{ 1,1,1 },
+			//	v5, RGBColor{ 1,1,1 },
+			//	v2, RGBColor{ 1,1,1 }));
+			//
+			//scene.AddGeometryToScene(new Triangle(FPoint3{ 0,0,0 },
+			//	v3, RGBColor{ 1,1,1 },
+			//	v6, RGBColor{ 1,1,1 },
+			//	v4, RGBColor{ 1,1,1 }));
+			//
+			//scene.AddGeometryToScene(new Triangle(FPoint3{ 0,0,0 },
+			//	v6, RGBColor{ 1,1,1 },
+			//	v7, RGBColor{ 1,1,1 },
+			//	v4, RGBColor{ 1,1,1 }));
+			//
+			//scene.AddGeometryToScene(new Triangle(FPoint3{ 0,0,0 },
+			//	v4, RGBColor{ 1,1,1 },
+			//	v7, RGBColor{ 1,1,1 },
+			//	v5, RGBColor{ 1,1,1 }));
+			//
+			//scene.AddGeometryToScene(new Triangle(FPoint3{ 0,0,0 },
+			//	v7, RGBColor{ 1,1,1 },
+			//	v8, RGBColor{ 1,1,1 },
+			//	v5, RGBColor{ 1,1,1 }));
 		}
 	}
 	
