@@ -16,12 +16,27 @@ void TriangleMesh::Hit(std::vector<float>& depthBuffer, SDL_Surface* pBackBuffer
 {
 	const SceneGraph& activeScene{ SceneManager::GetInstance().GetActiveScene() };
 	const Camera* pCamera{ activeScene.GetCamera() };
+
 	std::vector<Vertex> transformedVertices{ TransformVertices(pCamera->GetWorldToView(), m_WorldVertices) };
+	ApplyCameraCorrection(pCamera->GetFov(), pCamera->GetAspectRatio(), transformedVertices);
+	ApplyPerspectiveDivide(transformedVertices);
+	VerticesToScreenSpace(pCamera->GetScreenWidth(), pCamera->GetScreenHeight(), transformedVertices);
+
+	for (unsigned int i{0}; i < m_Indices.size(); i += 3)
+	{
+		std::vector<Vertex> triangleVertices{
+			transformedVertices[m_Indices[i]],
+			transformedVertices[m_Indices[i + 1]],
+			transformedVertices[m_Indices[i + 2]]
+		};
+		TriangleHit(depthBuffer, pBackBuffer, pBackBufferPixels, triangleVertices);
+	}
 
 	// for each triangle
 		// check the mode (normal or strip)
 		// get right indices
 		// call triangle hit
+
 }
 
 void TriangleMesh::RecalculateWorldVertices()

@@ -104,7 +104,7 @@ int main(int argc, char* args[])
 			std::vector<unsigned int> indices
 			{
 				0,3,1,
-				3,1,4,
+				3,4,1,
 				1,4,2,
 				4,5,2,
 
