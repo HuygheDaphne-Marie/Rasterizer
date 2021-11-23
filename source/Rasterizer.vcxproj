@@ -99,6 +99,7 @@
     <ClInclude Include="SceneGraph.h" />
     <ClInclude Include="SceneManager.h" />
     <ClInclude Include="Singleton.h" />
+    <ClInclude Include="Texture.h" />
     <ClInclude Include="TransformationHelper.h" />
     <ClInclude Include="Triangle.h" />
     <ClInclude Include="TriangleMesh.h" />
@@ -113,6 +114,7 @@
     <ClCompile Include="SceneGraph.cpp" />
     <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="Singleton.cpp" />
+    <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Triangle.cpp" />
     <ClCompile Include="TriangleMesh.cpp" />
   </ItemGroup>

@@ -91,15 +91,15 @@ int main(int argc, char* args[])
 
 			std::vector<Vertex> vertices
 			{
-				{v0, white},
-				{v1, white},
-				{v2, white},
-				{v3, white},
-				{v4, white},
-				{v5, white},
-				{v6, white},
-				{v7, white},
-				{v8, white}
+				{v0, white, FVector2{0,0}},
+				{v1, white, FVector2{0.5f, 0}},
+				{v2, white, FVector2{1,0}},
+				{v3, white, FVector2{0, 0.5f}},
+				{v4, white, FVector2{0.5f, 0.5f}},
+				{v5, white, FVector2{1, 0.5f}},
+				{v6, white, FVector2{0, 1}},
+				{v7, white, FVector2{0.5f, 1}},
+				{v8, white, FVector2{1, 1}}
 			};
 			//std::vector<unsigned int> indices
 			//{

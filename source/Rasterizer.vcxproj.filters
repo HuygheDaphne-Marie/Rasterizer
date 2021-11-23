@@ -23,6 +23,9 @@
     <Filter Include="Camera">
       <UniqueIdentifier>{d8b57d91-b845-4b62-83ca-7494e7e6ceec}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Texture">
+      <UniqueIdentifier>{4d6a0372-0608-4a29-9007-82fe819b101c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EMath.h">
@@ -106,6 +109,9 @@
     <ClInclude Include="TransformationHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>Texture</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ERenderer.cpp">
@@ -135,6 +141,9 @@
     </ClCompile>
     <ClCompile Include="TriangleMesh.cpp">
       <Filter>Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>Texture</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

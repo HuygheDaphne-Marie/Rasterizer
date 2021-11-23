@@ -28,9 +28,9 @@ inline float CalculateScreenSpaceY(const float y, const int screenHeight) // y
 	return (1 - y) / 2 * screenHeight;
 }
 
-inline unsigned int PixelToBufferIndex(unsigned int col, unsigned int row, unsigned int screenWidth)
+inline unsigned int PixelToBufferIndex(unsigned int x, unsigned int y, unsigned int width)
 {
-	return col + (row * screenWidth);
+	return x + (y * width);
 }
 
 inline void LimitPointToScreenBoundaries(Elite::FPoint2& point, float width, float height)

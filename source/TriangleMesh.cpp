@@ -8,6 +8,7 @@ TriangleMesh::TriangleMesh(const FPoint3& position, const std::vector<Vertex>& v
 	, m_ModelVertices(vertices)
 	, m_Indices(indices)
 	, m_Topology(topology)
+	, m_Texture("Resources/uv_grid_2.png")
 {
 	m_WorldVertices.insert(m_WorldVertices.end(), m_ModelVertices.begin(), m_ModelVertices.end());
 	RecalculateWorldVertices();
@@ -152,9 +153,16 @@ bool TriangleMesh::PixelHit(Elite::FPoint3& pixel, RGBColor& finalColor, std::ve
 							vertices[2].position.z * vertices[2].weight };
 	pixel.z = pixelDepth;
 
-	finalColor = vertices[0].color * vertices[0].weight + 
-				vertices[1].color * vertices[1].weight + 
-				vertices[2].color * vertices[2].weight;
+	const FVector2 finalUV =	vertices[0].uv * vertices[0].weight +
+								vertices[1].uv * vertices[1].weight +
+								vertices[2].uv * vertices[2].weight;
+
+	finalColor = m_Texture.Sample(finalUV);
+
+
+	//finalColor = vertices[0].color * vertices[0].weight + 
+	//			vertices[1].color * vertices[1].weight + 
+	//			vertices[2].color * vertices[2].weight;
 
 	return true;
 }

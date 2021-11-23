@@ -2,6 +2,7 @@
 #include <vector>
 #include "Geometry.h"
 #include "Vertex.h"
+#include "Texture.h"
 
 enum class PrimitiveTopology
 {
@@ -26,6 +27,9 @@ private:
 	std::vector<unsigned> m_Indices;
 
 	PrimitiveTopology m_Topology;
+
+	// Dirty texture add (Temp) Todo: remove
+	Texture m_Texture;
 
 	void RecalculateWorldVertices();
 	void OnRecalculateTransform() override;
