@@ -101,20 +101,25 @@ int main(int argc, char* args[])
 				{v7, white},
 				{v8, white}
 			};
+			//std::vector<unsigned int> indices
+			//{
+			//	0,3,1,
+			//	3,4,1,
+			//	1,4,2,
+			//	4,5,2,
+			//	3,6,4,
+			//	6,7,4,
+			//	4,7,5,
+			//	7,8,5
+			//};
+
 			std::vector<unsigned int> indices
 			{
-				0,3,1,
-				3,4,1,
-				1,4,2,
-				4,5,2,
-
-				3,6,4,
-				6,7,4,
-				4,7,5,
-				7,8,5
+				0,3,1,4,2,5,5,3,3,6,4,7,5,8
 			};
 
-			scene.AddGeometryToScene(new TriangleMesh(FPoint3{ 0,0,0 }, vertices, indices));
+			//scene.AddGeometryToScene(new TriangleMesh(FPoint3{ 0,0,0 }, vertices, indices));
+			scene.AddGeometryToScene(new TriangleMesh(FPoint3{ 0,0,0 }, vertices, indices, PrimitiveTopology::TriangleStrip));
 
 			//scene.AddGeometryToScene(new Triangle(FPoint3{ 0,0,0 },
 			//	v0, RGBColor{ 1,1,1 },

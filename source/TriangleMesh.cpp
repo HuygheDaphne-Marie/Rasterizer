@@ -3,10 +3,11 @@
 #include "TransformationHelper.h"
 #include <tuple>
 
-TriangleMesh::TriangleMesh(const FPoint3& position, const std::vector<Vertex>& vertices, const std::vector<unsigned>& indices)
+TriangleMesh::TriangleMesh(const FPoint3& position, const std::vector<Vertex>& vertices, const std::vector<unsigned>& indices, PrimitiveTopology topology)
 	: Geometry(position)
 	, m_ModelVertices(vertices)
 	, m_Indices(indices)
+	, m_Topology(topology)
 {
 	m_WorldVertices.insert(m_WorldVertices.end(), m_ModelVertices.begin(), m_ModelVertices.end());
 	RecalculateWorldVertices();
@@ -22,20 +23,23 @@ void TriangleMesh::Hit(std::vector<float>& depthBuffer, SDL_Surface* pBackBuffer
 	ApplyPerspectiveDivide(transformedVertices);
 	VerticesToScreenSpace(pCamera->GetScreenWidth(), pCamera->GetScreenHeight(), transformedVertices);
 
-	for (unsigned int i{0}; i < m_Indices.size(); i += 3)
+	// Index loop
+
+	unsigned int maxIndex{};
+	switch (m_Topology)
 	{
-		std::vector<Vertex> triangleVertices{
-			transformedVertices[m_Indices[i]],
-			transformedVertices[m_Indices[i + 1]],
-			transformedVertices[m_Indices[i + 2]]
-		};
+	case PrimitiveTopology::TriangleList:
+		maxIndex = static_cast<unsigned int>(m_Indices.size()) / 3;
+		break;
+	case PrimitiveTopology::TriangleStrip:
+		maxIndex = static_cast<unsigned int>(m_Indices.size()) - 2;
+		break;
+	}
+	for (unsigned int i{0}; i < maxIndex; ++i)
+	{
+		std::vector<Vertex> triangleVertices{ GetTriangleVertices(i, transformedVertices) };
 		TriangleHit(depthBuffer, pBackBuffer, pBackBufferPixels, triangleVertices);
 	}
-
-	// for each triangle
-		// check the mode (normal or strip)
-		// get right indices
-		// call triangle hit
 
 }
 
@@ -51,8 +55,38 @@ void TriangleMesh::OnRecalculateTransform()
 	RecalculateWorldVertices();
 }
 
+std::vector<Vertex> TriangleMesh::GetTriangleVertices(unsigned triangleNumber, const std::vector<Vertex>& vertices) const
+{
+	std::vector<Vertex> output{};
+	switch (m_Topology)
+	{
+		case PrimitiveTopology::TriangleList:
+			{
+				const unsigned int firstIndex{ triangleNumber * 3 };
+				output.push_back(vertices[m_Indices[firstIndex]]);
+				output.push_back(vertices[m_Indices[firstIndex + 1]]);
+				output.push_back(vertices[m_Indices[firstIndex + 2]]);
+			}
+		break;
+		case PrimitiveTopology::TriangleStrip:
+			output.push_back(vertices[m_Indices[triangleNumber]]);
+			if (triangleNumber % 2 == 0) // is even
+			{
+				output.push_back(vertices[m_Indices[triangleNumber + 1]]);
+				output.push_back(vertices[m_Indices[triangleNumber + 2]]);
+			}
+			else
+			{
+				output.push_back(vertices[m_Indices[triangleNumber + 2]]);
+				output.push_back(vertices[m_Indices[triangleNumber + 1]]);
+			}
+		break;
+	}
+	return output;
+}
+
 void TriangleMesh::TriangleHit(std::vector<float>& depthBuffer, SDL_Surface* pBackBuffer, uint32_t* pBackBufferPixels, 
-	std::vector<Vertex>& triangleVertices) const
+                               std::vector<Vertex>& triangleVertices) const
 {
 	const Camera* pCamera{ SceneManager::GetInstance().GetActiveScene().GetCamera() };
 	const int width{ pCamera->GetScreenWidth() };
