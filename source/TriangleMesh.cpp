@@ -148,14 +148,14 @@ bool TriangleMesh::PixelHit(Elite::FPoint3& pixel, RGBColor& finalColor, std::ve
 	CalculateBarycentricWeights(pixel.xy, vertices[0], vertices[1], vertices[2]);
 
 	// Depth test
-	const float pixelDepth{ vertices[0].position.z * vertices[0].weight + 
-							vertices[1].position.z * vertices[1].weight + 
-							vertices[2].position.z * vertices[2].weight };
+	const float pixelDepth{ 1 / ((1 / vertices[0].position.z) * vertices[0].weight +
+							(1 / vertices[1].position.z) * vertices[1].weight +
+							(1 / vertices[2].position.z) * vertices[2].weight) };
 	pixel.z = pixelDepth;
 
-	const FVector2 finalUV =	vertices[0].uv * vertices[0].weight +
-								vertices[1].uv * vertices[1].weight +
-								vertices[2].uv * vertices[2].weight;
+	const FVector2 finalUV =	(vertices[0].uv / vertices[0].position.z * vertices[0].weight +
+								vertices[1].uv / vertices[1].position.z * vertices[1].weight +
+								vertices[2].uv / vertices[2].position.z * vertices[2].weight) * pixelDepth;
 
 	finalColor = m_Texture.Sample(finalUV);
 
