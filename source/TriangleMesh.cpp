@@ -19,13 +19,12 @@ void TriangleMesh::Hit(std::vector<float>& depthBuffer, SDL_Surface* pBackBuffer
 	const SceneGraph& activeScene{ SceneManager::GetInstance().GetActiveScene() };
 	const Camera* pCamera{ activeScene.GetCamera() };
 
-	std::vector<Vertex> transformedVertices{ TransformVertices(pCamera->GetWorldToView(), m_WorldVertices) };
-	ApplyCameraCorrection(pCamera->GetFov(), pCamera->GetAspectRatio(), transformedVertices);
+	// projection
+	std::vector<Vertex> transformedVertices{ TransformVertices(pCamera->GetProjection() * pCamera->GetWorldToView(), m_WorldVertices) };
 	ApplyPerspectiveDivide(transformedVertices);
-	VerticesToScreenSpace(pCamera->GetScreenWidth(), pCamera->GetScreenHeight(), transformedVertices);
+	// vertices are now in NDC
 
 	// Index loop
-
 	unsigned int maxIndex{};
 	switch (m_Topology)
 	{
@@ -48,7 +47,7 @@ void TriangleMesh::RecalculateWorldVertices()
 {
 	for (unsigned int i{0}; i < m_ModelVertices.size(); ++i)
 	{
-		m_WorldVertices[i].position = (GetTransform() * FPoint4 { m_ModelVertices[i].position, 1 }).xyz;
+		m_WorldVertices[i].position = GetTransform() * m_ModelVertices[i].position;
 	}
 }
 void TriangleMesh::OnRecalculateTransform()
@@ -89,9 +88,22 @@ std::vector<Vertex> TriangleMesh::GetTriangleVertices(unsigned triangleNumber, c
 void TriangleMesh::TriangleHit(std::vector<float>& depthBuffer, SDL_Surface* pBackBuffer, uint32_t* pBackBufferPixels, 
                                std::vector<Vertex>& triangleVertices) const
 {
+	// frustum culling
+	for (const Vertex& vertex : triangleVertices)
+	{
+		if (vertex.position.z < 0) // closer than near
+			return;
+		if (vertex.position.z > 1)
+			return;
+	}
+
 	const Camera* pCamera{ SceneManager::GetInstance().GetActiveScene().GetCamera() };
 	const int width{ pCamera->GetScreenWidth() };
 	const int height{ pCamera->GetScreenHeight() };
+
+	// rasterization
+	VerticesToScreenSpace(pCamera->GetScreenWidth(), height, triangleVertices);
+
 
 	const std::tuple<Elite::FPoint2, Elite::FPoint2> points{ GetBoundingBox(static_cast<float>(width), static_cast<float>(height), triangleVertices) };
 	const FPoint2 topLeft{ std::get<0>(points) };
@@ -129,17 +141,17 @@ bool TriangleMesh::PixelHit(Elite::FPoint3& pixel, RGBColor& finalColor, std::ve
 	// Hit check
 	// crosses point out of the screen cause of right hand rule
 	FVector2 pixelToVertex{ pixel.xy - vertices[0].position.xy };
-	FVector3 edge{ vertices[1].position - vertices[0].position };
+	FVector3 edge{ vertices[1].position.xyz - vertices[0].position.xyz };
 	if (Cross(edge.xy, pixelToVertex) > 0.f) // edgeA
 		return false;
 
 	pixelToVertex = pixel.xy - vertices[1].position.xy;
-	edge = { vertices[2].position - vertices[1].position };
+	edge = vertices[2].position.xyz - vertices[1].position.xyz;
 	if (Cross(edge.xy, pixelToVertex) > 0.f) // edgeB
 		return false;
 
 	pixelToVertex = pixel.xy - vertices[2].position.xy;
-	edge = { vertices[0].position - vertices[2].position };
+	edge = vertices[0].position.xyz - vertices[2].position.xyz;
 	if (Cross(edge.xy, pixelToVertex) > 0.f) // edgeC
 		return false;
 
@@ -148,14 +160,14 @@ bool TriangleMesh::PixelHit(Elite::FPoint3& pixel, RGBColor& finalColor, std::ve
 	CalculateBarycentricWeights(pixel.xy, vertices[0], vertices[1], vertices[2]);
 
 	// Depth test
-	const float pixelDepth{ 1 / ((1 / vertices[0].position.z) * vertices[0].weight +
-							(1 / vertices[1].position.z) * vertices[1].weight +
-							(1 / vertices[2].position.z) * vertices[2].weight) };
+	const float pixelDepth{ 1 / ((1 / vertices[0].position.w) * vertices[0].weight +
+							(1 / vertices[1].position.w) * vertices[1].weight +
+							(1 / vertices[2].position.w) * vertices[2].weight) };
 	pixel.z = pixelDepth;
 
-	const FVector2 finalUV =	(vertices[0].uv / vertices[0].position.z * vertices[0].weight +
-								vertices[1].uv / vertices[1].position.z * vertices[1].weight +
-								vertices[2].uv / vertices[2].position.z * vertices[2].weight) * pixelDepth;
+	const FVector2 finalUV =	(vertices[0].uv / vertices[0].position.w * vertices[0].weight +
+								vertices[1].uv / vertices[1].position.w * vertices[1].weight +
+								vertices[2].uv / vertices[2].position.w * vertices[2].weight) * pixelDepth;
 
 	finalColor = m_Texture.Sample(finalUV);
 

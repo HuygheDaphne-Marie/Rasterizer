@@ -26,6 +26,7 @@ namespace Elite
 
 		const FMatrix4& GetWorldToView() const { return m_WorldToView; }
 		const FMatrix4& GetViewToWorld() const { return m_ViewToWorld; }
+		const FMatrix4& GetProjection() const { return  m_Projection;  }
 
 		int GetScreenWidth() const { return m_Width; }
 		int GetScreenHeight() const { return m_Height; }
@@ -34,6 +35,7 @@ namespace Elite
 
 	private:
 		void CalculateLookAt();
+		void CalculateProjection();
 
 		const int m_Width{};
 		const int m_Height{};
@@ -53,5 +55,9 @@ namespace Elite
 
 		FMatrix4 m_WorldToView{};
 		FMatrix4 m_ViewToWorld{};
+
+		const float m_NearClipPlane{ 1.f };
+		const float m_FarClipPlane{ 100.f };
+		FMatrix4 m_Projection;
 	};
 }

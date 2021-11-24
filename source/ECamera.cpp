@@ -6,13 +6,14 @@ namespace Elite
 	Camera::Camera(const int screenWidth, const int screenHeight, const FPoint3& position, const FVector3& viewForward, float fovAngle) :
 		m_Width(screenWidth),
 		m_Height(screenHeight),
-		m_AspectRatio{ static_cast<float>(screenHeight) / static_cast<float>(screenWidth) },
-		m_Fov(tanf((fovAngle* float(E_TO_RADIANS)) / 2.f)),
+		m_AspectRatio{ static_cast<float>(screenWidth) / static_cast<float>(screenHeight) },
+		m_Fov(tanf((fovAngle* static_cast<float>(E_TO_RADIANS)) / 2.f)),
 		m_Position{ position },
 		m_ViewForward{GetNormalized(-viewForward)}
 	{
 		//Calculate initial matrices based on given parameters (position & target)
 		CalculateLookAt();
+		CalculateProjection();
 	}
 
 	void Camera::Update(float elapsedSec)
@@ -81,5 +82,16 @@ namespace Elite
 
 		//Construct World2View Matrix
 		m_WorldToView = Inverse(m_ViewToWorld);
+	}
+
+	void Camera::CalculateProjection()
+	{
+		m_Projection = FMatrix4::Identity();
+		m_Projection.data[0][0] = 1.f / (GetAspectRatio() * GetFov());
+		m_Projection.data[1][1] = 1.f / GetFov();
+		m_Projection.data[2][2] = m_FarClipPlane / (m_NearClipPlane - m_FarClipPlane);
+		m_Projection.data[2][3] = -1.f;
+		m_Projection.data[3][2] = (m_FarClipPlane * m_NearClipPlane) / (m_NearClipPlane - m_FarClipPlane);
+		m_Projection.data[3][3] = 0.f;
 	}
 }

@@ -11,7 +11,7 @@ inline std::vector<Vertex> TransformVertices(const Elite::FMatrix4& transform, c
 	for (const Vertex& vertex : verticesToTransform)
 	{
 		output.push_back(vertex);
-		output[output.size() - 1].position = (transform * Elite::FPoint4(vertex.position, 1)).xyz;
+		output[output.size() - 1].position = transform * vertex.position;
 	}
 	return output;
 }
@@ -29,9 +29,9 @@ inline void ApplyPerspectiveDivide(std::vector<Vertex>& vertices)
 {
 	for (Vertex& vertex : vertices)
 	{
-		vertex.position.x = vertex.position.x / -vertex.position.z;
-		vertex.position.y = vertex.position.y / -vertex.position.z;
-		vertex.position.z *= -1;
+		vertex.position.x /= vertex.position.w;
+		vertex.position.y /= vertex.position.w;
+		vertex.position.z /= vertex.position.w;
 	}
 }
 
