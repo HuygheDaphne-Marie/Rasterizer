@@ -16,6 +16,7 @@
 #include "SceneManager.h"
 #include "Triangle.h"
 #include "TriangleMesh.h"
+#include "EOBJParser.h"
 
 void ShutDown(SDL_Window* pWindow)
 {
@@ -89,37 +90,46 @@ int main(int argc, char* args[])
 
 			const RGBColor white{ 1,1,1 };
 
-			std::vector<Vertex> vertices
-			{
-				{v0, white, FVector2{0,0}},
-				{v1, white, FVector2{0.5f, 0}},
-				{v2, white, FVector2{1,0}},
-				{v3, white, FVector2{0, 0.5f}},
-				{v4, white, FVector2{0.5f, 0.5f}},
-				{v5, white, FVector2{1, 0.5f}},
-				{v6, white, FVector2{0, 1}},
-				{v7, white, FVector2{0.5f, 1}},
-				{v8, white, FVector2{1, 1}}
-			};
+			std::vector<OBJVertex> verticesFromFile{};
+			std::vector<uint32_t> indices{};
+			ParseOBJ("Resources/tuktuk.obj", verticesFromFile, indices);
+
+			//std::vector<Vertex> vertices
+			//{
+			//	{v0, white, FVector2{0,0}},
+			//	{v1, white, FVector2{0.5f, 0}},
+			//	{v2, white, FVector2{1,0}},
+			//	{v3, white, FVector2{0, 0.5f}},
+			//	{v4, white, FVector2{0.5f, 0.5f}},
+			//	{v5, white, FVector2{1, 0.5f}},
+			//	{v6, white, FVector2{0, 1}},
+			//	{v7, white, FVector2{0.5f, 1}},
+			//	{v8, white, FVector2{1, 1}}
+			//};
+			////std::vector<unsigned int> indices
+			////{
+			////	0,3,1,
+			////	3,4,1,
+			////	1,4,2,
+			////	4,5,2,
+			////	3,6,4,
+			////	6,7,4,
+			////	4,7,5,
+			////	7,8,5
+			////};
 			//std::vector<unsigned int> indices
 			//{
-			//	0,3,1,
-			//	3,4,1,
-			//	1,4,2,
-			//	4,5,2,
-			//	3,6,4,
-			//	6,7,4,
-			//	4,7,5,
-			//	7,8,5
+			//	0,3,1,4,2,5,5,3,3,6,4,7,5,8
 			//};
 
-			std::vector<unsigned int> indices
+			std::vector<Vertex> vertices{};
+			for (const OBJVertex& objVertex : verticesFromFile)
 			{
-				0,3,1,4,2,5,5,3,3,6,4,7,5,8
-			};
+				vertices.push_back(Vertex{ objVertex.position, white, objVertex.uv });
+			}
 
-			//scene.AddGeometryToScene(new TriangleMesh(FPoint3{ 0,0,0 }, vertices, indices));
-			scene.AddGeometryToScene(new TriangleMesh(FPoint3{ 0,0,0 }, vertices, indices, PrimitiveTopology::TriangleStrip));
+			scene.AddGeometryToScene(new TriangleMesh(FPoint3{ 0,0,0 }, vertices, indices));
+			//scene.AddGeometryToScene(new TriangleMesh(FPoint3{ 0,0,0 }, vertices, indices, PrimitiveTopology::TriangleStrip));
 
 			//scene.AddGeometryToScene(new Triangle(FPoint3{ 0,0,0 },
 			//	v0, RGBColor{ 1,1,1 },

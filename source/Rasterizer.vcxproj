@@ -83,6 +83,7 @@
     <ClInclude Include="EMatrix2.h" />
     <ClInclude Include="EMatrix3.h" />
     <ClInclude Include="EMatrix4.h" />
+    <ClInclude Include="EOBJParser.h" />
     <ClInclude Include="EPoint.h" />
     <ClInclude Include="EPoint2.h" />
     <ClInclude Include="EPoint3.h" />

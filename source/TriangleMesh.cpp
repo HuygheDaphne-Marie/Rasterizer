@@ -8,7 +8,7 @@ TriangleMesh::TriangleMesh(const FPoint3& position, const std::vector<Vertex>& v
 	, m_ModelVertices(vertices)
 	, m_Indices(indices)
 	, m_Topology(topology)
-	, m_Texture("Resources/uv_grid_2.png")
+	, m_Texture("Resources/tuktuk.png")
 {
 	m_WorldVertices.insert(m_WorldVertices.end(), m_ModelVertices.begin(), m_ModelVertices.end());
 	RecalculateWorldVertices();

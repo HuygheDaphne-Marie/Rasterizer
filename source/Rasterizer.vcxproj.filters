@@ -112,6 +112,7 @@
     <ClInclude Include="Texture.h">
       <Filter>Texture</Filter>
     </ClInclude>
+    <ClInclude Include="EOBJParser.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ERenderer.cpp">
