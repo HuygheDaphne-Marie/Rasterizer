@@ -17,9 +17,7 @@ public:
 		PrimitiveTopology topology = PrimitiveTopology::TriangleList);
 	~TriangleMesh() override = default;
 
-	void Hit(std::vector<float>& depthBuffer, SDL_Surface* pBackBuffer, uint32_t* pBackBufferPixels) const override;
-
-
+	void Hit(const RenderInfo& renderInfo) const override;
 
 private:
 	const std::vector<Vertex> m_ModelVertices;
@@ -36,6 +34,6 @@ private:
 
 	std::vector<Vertex> GetTriangleVertices(unsigned int triangleNumber, const std::vector<Vertex>& vertices) const;
 
-	void TriangleHit(std::vector<float>& depthBuffer, SDL_Surface* pBackBuffer, uint32_t* pBackBufferPixels, std::vector<Vertex>& triangleVertices) const;
+	void TriangleHit(const RenderInfo& renderInfo, std::vector<Vertex>& triangleVertices) const;
 	bool PixelHit(Elite::FPoint3& pixel, RGBColor& finalColor, std::vector<Vertex>& vertices) const;
 };

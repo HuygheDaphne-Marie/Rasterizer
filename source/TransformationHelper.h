@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <iostream>
 #include <vector>
 #include <tuple>
 #include "EMath.h"
@@ -75,4 +76,9 @@ inline void CalculateBarycentricWeights(const FPoint2& pixel, Vertex& vertex0, V
 	vertex0.weight = Cross(FVector2{ vertex2.position.xy - vertex1.position.xy }, FVector2{ pixel - vertex1.position.xy }) / area;
 	vertex1.weight = Cross(FVector2{ vertex0.position.xy - vertex2.position.xy }, FVector2{ pixel - vertex2.position.xy }) / area;
 	vertex2.weight = Cross(FVector2{ vertex1.position.xy - vertex0.position.xy }, FVector2{ pixel - vertex0.position.xy }) / area;
+
+	//if (fabs(vertex0.weight + vertex1.weight + vertex2.weight - 1.0f) < FLT_EPSILON)
+	//{
+	//	std::cout << "peepepe" << std::endl;
+	//}
 }

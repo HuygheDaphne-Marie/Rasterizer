@@ -14,7 +14,7 @@ TriangleMesh::TriangleMesh(const FPoint3& position, const std::vector<Vertex>& v
 	RecalculateWorldVertices();
 }
 
-void TriangleMesh::Hit(std::vector<float>& depthBuffer, SDL_Surface* pBackBuffer, uint32_t* pBackBufferPixels) const
+void TriangleMesh::Hit(const RenderInfo& renderInfo) const
 {
 	const SceneGraph& activeScene{ SceneManager::GetInstance().GetActiveScene() };
 	const Camera* pCamera{ activeScene.GetCamera() };
@@ -38,7 +38,7 @@ void TriangleMesh::Hit(std::vector<float>& depthBuffer, SDL_Surface* pBackBuffer
 	for (unsigned int i{0}; i < maxIndex; ++i)
 	{
 		std::vector<Vertex> triangleVertices{ GetTriangleVertices(i, transformedVertices) };
-		TriangleHit(depthBuffer, pBackBuffer, pBackBufferPixels, triangleVertices);
+		TriangleHit(renderInfo, triangleVertices);
 	}
 
 }
@@ -85,8 +85,7 @@ std::vector<Vertex> TriangleMesh::GetTriangleVertices(unsigned triangleNumber, c
 	return output;
 }
 
-void TriangleMesh::TriangleHit(std::vector<float>& depthBuffer, SDL_Surface* pBackBuffer, uint32_t* pBackBufferPixels, 
-                               std::vector<Vertex>& triangleVertices) const
+void TriangleMesh::TriangleHit(const RenderInfo& renderInfo, std::vector<Vertex>& triangleVertices) const
 {
 	// frustum culling
 	for (const Vertex& vertex : triangleVertices)
@@ -104,8 +103,7 @@ void TriangleMesh::TriangleHit(std::vector<float>& depthBuffer, SDL_Surface* pBa
 	// rasterization
 	VerticesToScreenSpace(pCamera->GetScreenWidth(), height, triangleVertices);
 
-
-	const std::tuple<Elite::FPoint2, Elite::FPoint2> points{ GetBoundingBox(static_cast<float>(width), static_cast<float>(height), triangleVertices) };
+	const std::tuple<FPoint2, FPoint2> points{ GetBoundingBox(static_cast<float>(width), static_cast<float>(height), triangleVertices) };
 	const FPoint2 topLeft{ std::get<0>(points) };
 	const FPoint2 bottomRight{ std::get<1>(points) };
 
@@ -122,21 +120,32 @@ void TriangleMesh::TriangleHit(std::vector<float>& depthBuffer, SDL_Surface* pBa
 			RGBColor finalColor{};
 			if (PixelHit(pixel, finalColor, triangleVertices))
 			{
-				if (pixel.z < depthBuffer[PixelToBufferIndex(col, row, width)])
+				if (pixel.z < renderInfo.depthBuffer[PixelToBufferIndex(col, row, width)])
 				{
-					depthBuffer[PixelToBufferIndex(col, row, width)] = pixel.z;
+					renderInfo.depthBuffer[PixelToBufferIndex(col, row, width)] = pixel.z;
 
-					pBackBufferPixels[PixelToBufferIndex(col, row, width)] = SDL_MapRGB(pBackBuffer->format,
-						static_cast<Uint8>(finalColor.r * 255.f),
-						static_cast<Uint8>(finalColor.g * 255.f),
-						static_cast<Uint8>(finalColor.b * 255.f));
+					if(renderInfo.depthBufferRenderMode) // Render depth buffer
+					{
+						const float depthColorValue{ std::max(0.f, Remap(pixel.z, 0.985f, 1.f)) };
+						renderInfo.pBackBufferPixels[PixelToBufferIndex(col, row, width)] = SDL_MapRGB(renderInfo.pBackBuffer->format,
+							static_cast<Uint8>(depthColorValue * 255.f),
+							static_cast<Uint8>(depthColorValue * 255.f),
+							static_cast<Uint8>(depthColorValue * 255.f));
+					}
+					else // render final color
+					{
+						renderInfo.pBackBufferPixels[PixelToBufferIndex(col, row, width)] = SDL_MapRGB(renderInfo.pBackBuffer->format,
+							static_cast<Uint8>(finalColor.r * 255.f),
+							static_cast<Uint8>(finalColor.g * 255.f),
+							static_cast<Uint8>(finalColor.b * 255.f));
+					}
 				}
 			}
 		}
 	}
 }
 
-bool TriangleMesh::PixelHit(Elite::FPoint3& pixel, RGBColor& finalColor, std::vector<Vertex>& vertices) const
+bool TriangleMesh::PixelHit(FPoint3& pixel, RGBColor& finalColor, std::vector<Vertex>& vertices) const
 {
 	// Hit check
 	// crosses point out of the screen cause of right hand rule
@@ -159,15 +168,34 @@ bool TriangleMesh::PixelHit(Elite::FPoint3& pixel, RGBColor& finalColor, std::ve
 
 	CalculateBarycentricWeights(pixel.xy, vertices[0], vertices[1], vertices[2]);
 
+	// Try recalculate weights
+	//const float area{ Cross(FVector2{vertices[0].position.xy - vertices[1].position.xy}, FVector2{vertices[0].position.xy - vertices[2].position.xy}) };
+	//const float crossA = Cross(edge.xy, pixelToVertex);
+	//const float crossB = Cross(edge.xy, pixelToVertex);
+	//const float crossC = Cross(edge.xy, pixelToVertex);
+	//vertices[0].weight = crossB/ area;
+	//vertices[1].weight = crossC / area;
+	//vertices[2].weight = crossA / area;
+
 	// Depth test
-	const float pixelDepth{ 1 / ((1 / vertices[0].position.w) * vertices[0].weight +
-							(1 / vertices[1].position.w) * vertices[1].weight +
-							(1 / vertices[2].position.w) * vertices[2].weight) };
+	const float pixelDepth{ 1 / ((1 / vertices[0].position.z) * vertices[0].weight +
+							(1 / vertices[1].position.z) * vertices[1].weight +
+							(1 / vertices[2].position.z) * vertices[2].weight) };
 	pixel.z = pixelDepth;
+
+	if (pixelDepth < 0 || pixelDepth > 1.0f)
+	{
+		std::cout << "Poopoo" << std::endl;
+	}
+
+
+	const float wInterpolated{ 1 / ((1 / vertices[0].position.w) * vertices[0].weight +
+						(1 / vertices[1].position.w) * vertices[1].weight +
+						(1 / vertices[2].position.w) * vertices[2].weight) };
 
 	const FVector2 finalUV =	(vertices[0].uv / vertices[0].position.w * vertices[0].weight +
 								vertices[1].uv / vertices[1].position.w * vertices[1].weight +
-								vertices[2].uv / vertices[2].position.w * vertices[2].weight) * pixelDepth;
+								vertices[2].uv / vertices[2].position.w * vertices[2].weight) * wInterpolated;
 
 	finalColor = m_Texture.Sample(finalUV);
 

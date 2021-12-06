@@ -40,10 +40,11 @@ void Renderer::Render()
 				0);
 		}
 	}
-	
+
+	const RenderInfo renderInfo{ m_DepthBuffer, m_pBackBuffer, m_pBackBufferPixels, m_RenderDepthBuffer};
 	for (const Geometry* geometry : activeScene.GetGeometries())
 	{
-		geometry->Hit(m_DepthBuffer, m_pBackBuffer, m_pBackBufferPixels);
+		geometry->Hit(renderInfo);
 	}
 
 	std::fill(m_DepthBuffer.begin(), m_DepthBuffer.end(), FLT_MAX);
@@ -56,4 +57,9 @@ void Renderer::Render()
 bool Renderer::SaveBackbufferToImage() const
 {
 	return SDL_SaveBMP(m_pBackBuffer, "BackbufferRender.bmp");
+}
+
+void Renderer::ToggleRenderDepthBuffer()
+{
+	m_RenderDepthBuffer = !m_RenderDepthBuffer;
 }

@@ -20,7 +20,7 @@ Triangle::Triangle(const FPoint3& position,
 	RecalculateWorldVertices();
 }
 
-void Triangle::Hit(std::vector<float>& depthBuffer, SDL_Surface* pBackBuffer, uint32_t* pBackBufferPixels) const
+void Triangle::Hit(const RenderInfo& renderInfo) const
 {
 	Vertex vertex0, vertex1, vertex2;
 	GetTransformedVertices(vertex0, vertex1, vertex2);
@@ -44,11 +44,11 @@ void Triangle::Hit(std::vector<float>& depthBuffer, SDL_Surface* pBackBuffer, ui
 			RGBColor finalColor{};
 			if (PixelHit(pixel, finalColor, vertex0, vertex1, vertex2))
 			{
-				if (pixel.z < depthBuffer[PixelToBufferIndex(col, row, width)])
+				if (pixel.z < renderInfo.depthBuffer[PixelToBufferIndex(col, row, width)])
 				{
-					depthBuffer[PixelToBufferIndex(col, row, width)] = pixel.z;
+					renderInfo.depthBuffer[PixelToBufferIndex(col, row, width)] = pixel.z;
 
-					pBackBufferPixels[PixelToBufferIndex(col, row, width)] = SDL_MapRGB(pBackBuffer->format,
+					renderInfo.pBackBufferPixels[PixelToBufferIndex(col, row, width)] = SDL_MapRGB(renderInfo.pBackBuffer->format,
 						static_cast<Uint8>(finalColor.r * 255.f),
 						static_cast<Uint8>(finalColor.g * 255.f),
 						static_cast<Uint8>(finalColor.b * 255.f));

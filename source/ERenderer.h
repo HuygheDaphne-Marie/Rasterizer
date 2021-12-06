@@ -30,6 +30,8 @@ namespace Elite
 		void Render();
 		bool SaveBackbufferToImage() const;
 
+		void ToggleRenderDepthBuffer();
+
 	private:
 		SDL_Window* m_pWindow = nullptr;
 		SDL_Surface* m_pFrontBuffer = nullptr;
@@ -39,6 +41,8 @@ namespace Elite
 		uint32_t m_Height = 0;
 
 		std::vector<float> m_DepthBuffer;
+
+		bool m_RenderDepthBuffer = false;
 	};
 }
 

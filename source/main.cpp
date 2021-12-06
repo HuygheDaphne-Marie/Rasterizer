@@ -125,7 +125,7 @@ int main(int argc, char* args[])
 			std::vector<Vertex> vertices{};
 			for (const OBJVertex& objVertex : verticesFromFile)
 			{
-				vertices.push_back(Vertex{ objVertex.position, white, objVertex.uv });
+				vertices.push_back(Vertex{ objVertex.position, white, objVertex.uv, objVertex.normal });
 			}
 
 			scene.AddGeometryToScene(new TriangleMesh(FPoint3{ 0,0,0 }, vertices, indices));
@@ -193,6 +193,8 @@ int main(int argc, char* args[])
 			case SDL_KEYUP:
 				if(e.key.keysym.scancode == SDL_SCANCODE_X)
 					takeScreenShot = true;
+				if (e.key.keysym.scancode == SDL_SCANCODE_R)
+					pRenderer->ToggleRenderDepthBuffer();
 				break;
 			}
 		}

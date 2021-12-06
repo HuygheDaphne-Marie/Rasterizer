@@ -97,6 +97,7 @@
     <ClInclude Include="EVector4.h" />
     <ClInclude Include="Geometry.h" />
     <ClInclude Include="MathHelper.h" />
+    <ClInclude Include="RenderInfo.h" />
     <ClInclude Include="SceneGraph.h" />
     <ClInclude Include="SceneManager.h" />
     <ClInclude Include="Singleton.h" />

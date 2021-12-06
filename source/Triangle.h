@@ -10,7 +10,7 @@ public:
 		const FPoint3& v1, const RGBColor& c1, 
 		const FPoint3& v2, const RGBColor& c2);
 	
-	void Hit(std::vector<float>& depthBuffer, SDL_Surface* pBackBuffer, uint32_t* pBackBufferPixels) const override;
+	void Hit(const RenderInfo& renderInfo) const override;
 
 private:
 	const FPoint3 m_ModelVertex0;
