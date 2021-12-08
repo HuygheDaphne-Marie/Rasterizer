@@ -126,7 +126,12 @@ void TriangleMesh::TriangleHit(const RenderInfo& renderInfo, std::vector<Vertex>
 
 					if(renderInfo.depthBufferRenderMode) // Render depth buffer
 					{
-						const float depthColorValue{ std::max(0.f, Remap(pixel.z, 0.985f, 1.f)) };
+						//const float depthColorValue{ std::max(0.f, Remap(pixel.z, 0.985f, 1.f)) };
+						const float depthColorValue{ Remap(pixel.z, 0.985f, 1.f) };
+						//const float depthColorValue{ Remap(pixel.z, 0.5f, 1.1f) }; // the fix
+						//const float depthColorValue{ Remap(pixel.z, 0.5f, 1.f) }; 
+						//const float depthColorValue{pixel.z};
+						//const float depthColorValue{ abs(Remap(pixel.z, 0.985f, 1.f)) };
 						renderInfo.pBackBufferPixels[PixelToBufferIndex(col, row, width)] = SDL_MapRGB(renderInfo.pBackBuffer->format,
 							static_cast<Uint8>(depthColorValue * 255.f),
 							static_cast<Uint8>(depthColorValue * 255.f),
@@ -151,55 +156,75 @@ bool TriangleMesh::PixelHit(FPoint3& pixel, RGBColor& finalColor, std::vector<Ve
 	// crosses point out of the screen cause of right hand rule
 	FVector2 pixelToVertex{ pixel.xy - vertices[0].position.xy };
 	FVector3 edge{ vertices[1].position.xyz - vertices[0].position.xyz };
-	if (Cross(edge.xy, pixelToVertex) > 0.f) // edgeA
+	const float crossA = Cross(edge.xy, pixelToVertex);
+	if (crossA > 0.f) // edgeA
 		return false;
 
 	pixelToVertex = pixel.xy - vertices[1].position.xy;
 	edge = vertices[2].position.xyz - vertices[1].position.xyz;
-	if (Cross(edge.xy, pixelToVertex) > 0.f) // edgeB
+	const float crossB = Cross(edge.xy, pixelToVertex);
+	if (crossB > 0.f) // edgeB
 		return false;
 
 	pixelToVertex = pixel.xy - vertices[2].position.xy;
 	edge = vertices[0].position.xyz - vertices[2].position.xyz;
-	if (Cross(edge.xy, pixelToVertex) > 0.f) // edgeC
+	const float crossC = Cross(edge.xy, pixelToVertex);
+	if (crossC > 0.f) // edgeC
 		return false;
-
 	// Triangle has been hit at this point
 
-	CalculateBarycentricWeights(pixel.xy, vertices[0], vertices[1], vertices[2]);
+	// Calculate weights
+	const float area{ Cross(FVector2{vertices[0].position.xy - vertices[1].position.xy}, FVector2{vertices[0].position.xy - vertices[2].position.xy}) };
+	vertices[0].weight = crossB / area;
+	vertices[1].weight = crossC / area;
+	vertices[2].weight = crossA / area;
 
-	// Try recalculate weights
-	//const float area{ Cross(FVector2{vertices[0].position.xy - vertices[1].position.xy}, FVector2{vertices[0].position.xy - vertices[2].position.xy}) };
-	//const float crossA = Cross(edge.xy, pixelToVertex);
-	//const float crossB = Cross(edge.xy, pixelToVertex);
-	//const float crossC = Cross(edge.xy, pixelToVertex);
-	//vertices[0].weight = crossB/ area;
-	//vertices[1].weight = crossC / area;
-	//vertices[2].weight = crossA / area;
+	//const float totalWeights{ fabs(vertices[0].weight + vertices[1].weight + vertices[2].weight) };
+	//if (!AreEqual(totalWeights, 1.0f))
+	//{
+	//	const float weightError{ totalWeights - 1.0f };
+	//	std::cout << "Absolute value of all weights should == 1, difference is: " << std::to_string(weightError) << std::endl;
+	//}
 
 	// Depth test
-	const float pixelDepth{ 1 / ((1 / vertices[0].position.z) * vertices[0].weight +
-							(1 / vertices[1].position.z) * vertices[1].weight +
-							(1 / vertices[2].position.z) * vertices[2].weight) };
-	pixel.z = pixelDepth;
-
-	if (pixelDepth < 0 || pixelDepth > 1.0f)
+	const float zInterpolated
 	{
-		std::cout << "Poopoo" << std::endl;
-	}
+		1 / 
+		(
+			1 / vertices[0].position.z * vertices[0].weight +
+			1 / vertices[1].position.z * vertices[1].weight +
+			1 / vertices[2].position.z * vertices[2].weight
+		)
+	};
 
+	pixel.z = zInterpolated;
 
-	const float wInterpolated{ 1 / ((1 / vertices[0].position.w) * vertices[0].weight +
-						(1 / vertices[1].position.w) * vertices[1].weight +
-						(1 / vertices[2].position.w) * vertices[2].weight) };
+	// z check
+	//if (zInterpolated < 0.f || zInterpolated > 1.0f)
+	//{
+	//	std::cout << "zInterpolated not in [0, 1] range, value: " << zInterpolated << std::endl;
+	//}
 
-	const FVector2 finalUV =	(vertices[0].uv / vertices[0].position.w * vertices[0].weight +
-								vertices[1].uv / vertices[1].position.w * vertices[1].weight +
-								vertices[2].uv / vertices[2].position.w * vertices[2].weight) * wInterpolated;
+	const float wInterpolated
+	{
+		1 / 
+		(
+			1 / vertices[0].position.w * vertices[0].weight +
+			1 / vertices[1].position.w * vertices[1].weight +
+			1 / vertices[2].position.w * vertices[2].weight
+		)
+	};
 
-	finalColor = m_Texture.Sample(finalUV);
+	const FVector2 uvInterpolated = 
+	(
+		vertices[0].uv / vertices[0].position.w * vertices[0].weight +
+		vertices[1].uv / vertices[1].position.w * vertices[1].weight +
+		vertices[2].uv / vertices[2].position.w * vertices[2].weight
+	) * wInterpolated;
 
+	finalColor = m_Texture.Sample(uvInterpolated);
 
+	// old colour determination
 	//finalColor = vertices[0].color * vertices[0].weight + 
 	//			vertices[1].color * vertices[1].weight + 
 	//			vertices[2].color * vertices[2].weight;

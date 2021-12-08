@@ -56,7 +56,7 @@ namespace Elite
 		FMatrix4 m_WorldToView{};
 		FMatrix4 m_ViewToWorld{};
 
-		const float m_NearClipPlane{ 1.f };
+		const float m_NearClipPlane{ 0.1f };
 		const float m_FarClipPlane{ 100.f };
 		FMatrix4 m_Projection;
 	};

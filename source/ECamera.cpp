@@ -93,5 +93,14 @@ namespace Elite
 		m_Projection.data[2][3] = -1.f;
 		m_Projection.data[3][2] = (m_FarClipPlane * m_NearClipPlane) / (m_NearClipPlane - m_FarClipPlane);
 		m_Projection.data[3][3] = 0.f;
+
+		// Alternate version
+		//m_Projection = FMatrix4::Identity();
+		//m_Projection.data[0][0] = 1.f / (GetAspectRatio() * GetFov());
+		//m_Projection.data[1][1] = 1.f / GetFov();
+		//m_Projection.data[2][2] = -m_FarClipPlane / (m_FarClipPlane - m_NearClipPlane);
+		//m_Projection.data[2][3] = -1.f;
+		//m_Projection.data[3][2] = -(m_FarClipPlane * m_NearClipPlane) / (m_FarClipPlane - m_NearClipPlane);
+		//m_Projection.data[3][3] = 0.f;
 	}
 }

@@ -20,7 +20,7 @@ Renderer::Renderer(SDL_Window * pWindow)
 	m_pBackBuffer = SDL_CreateRGBSurface(0, m_Width, m_Height, 32, 0, 0, 0, 0);
 	m_pBackBufferPixels = static_cast<uint32_t*>(m_pBackBuffer->pixels);
 
-	m_DepthBuffer.resize(m_Width * m_Height, FLT_MAX);
+	m_DepthBuffer.resize(m_Width * m_Height, 1.0f);
 }
 
 void Renderer::Render()
@@ -47,7 +47,7 @@ void Renderer::Render()
 		geometry->Hit(renderInfo);
 	}
 
-	std::fill(m_DepthBuffer.begin(), m_DepthBuffer.end(), FLT_MAX);
+	std::fill(m_DepthBuffer.begin(), m_DepthBuffer.end(), 1.0f);
 	
 	SDL_UnlockSurface(m_pBackBuffer);
 	SDL_BlitSurface(m_pBackBuffer, 0, m_pFrontBuffer, 0);
