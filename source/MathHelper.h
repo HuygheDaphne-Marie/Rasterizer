@@ -60,3 +60,9 @@ inline Type Interpolate(const std::array<Type, 3>& attributesToInterpolate,
 		attributesToInterpolate[2] / pOwningVertices[2]->position.w * pOwningVertices[2]->weight
 	) * interpolatedLinearDepth;
 }
+
+template<typename Type>
+inline bool IsInRange(Type value, Type minRange, Type maxRange)
+{
+	return value >= minRange && value <= maxRange;
+}

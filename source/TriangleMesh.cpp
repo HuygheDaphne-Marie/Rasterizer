@@ -41,10 +41,58 @@ void TriangleMesh::Hit(const RenderInfo& renderInfo) const
 	}
 	for (unsigned int i{0}; i < maxIndex; ++i)
 	{
-		std::vector<Vertex> triangleVertices{ GetTriangleVertices(i, transformedVertices) };
-		TriangleHit(renderInfo, triangleVertices);
+		std::vector<Vertex> transformedTriangleVertices{ GetTriangleVertices(i, transformedVertices) };
+		TriangleHit(renderInfo, transformedTriangleVertices);
 	}
 
+}
+
+// The Great Rework
+void TriangleMesh::Project(std::vector<Vertex>& vertices) const
+{
+	const SceneGraph& activeScene{ SceneManager::GetInstance().GetActiveScene() };
+	const Camera* pCamera{ activeScene.GetCamera() };
+
+	// Positions
+	TransformVertexPositionsNoCopy(pCamera->GetProjection() * pCamera->GetWorldToView() * GetTransform(), vertices);
+	ApplyPerspectiveDivide(vertices);
+
+	// Normal & Tangent
+	TransformVertexNormals(GetTransform(), vertices);
+	TransformVertexTangents(GetTransform(), vertices);
+
+	// Todo: View Direction 
+}
+
+bool TriangleMesh::Rasterize(std::vector<Vertex>& triangleVertices, Vertex& vertexOut) const
+{
+	for (const Vertex& vertex : triangleVertices)
+	{
+		// if vertex doesn't fit in NDC space (outside the view of the screen)
+		if (!IsInRange(vertex.position.x, 0.f, 1.f))
+			return false;
+		if (!IsInRange(vertex.position.y, 0.f, 1.f))
+			return false;
+
+		// closer than near plane or further than far plane
+		if (!IsInRange(vertex.position.z, 0.f, 1.f))
+			return false;
+	}
+
+	// Triangle is within the screen now for sure
+
+	// Bring NDC space vertex positions to screenSpace 
+	const Camera* pCamera{ SceneManager::GetInstance().GetActiveScene().GetCamera() };
+	const int width{ pCamera->GetScreenWidth() };
+	const int height{ pCamera->GetScreenHeight() };
+	VerticesToScreenSpace(pCamera->GetScreenWidth(), height, triangleVertices);
+
+	// Make bounding box around triangle, so we check the least amount of pixels 
+	const std::tuple<FPoint2, FPoint2> points{ GetBoundingBox(static_cast<float>(width), static_cast<float>(height), triangleVertices) };
+	const FPoint2 topLeft{ std::get<0>(points) };
+	const FPoint2 bottomRight{ std::get<1>(points) };
+
+	return true;
 }
 
 void TriangleMesh::RecalculateWorldVertices()

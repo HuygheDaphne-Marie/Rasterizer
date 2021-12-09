@@ -17,19 +17,27 @@ inline std::vector<Vertex> TransformVertexPositions(const Elite::FMatrix4& trans
 	return output;
 }
 
-inline void TransformVertexNormals(const Elite::FMatrix4& transform, std::vector<Vertex>& verticesToTransform)
+inline void TransformVertexPositionsNoCopy(const Elite::FMatrix4& transform, std::vector<Vertex>& verticesToTransform)
 {
 	for (Vertex& vertex : verticesToTransform)
 	{
-		vertex.normal = (transform * FVector4{ vertex.normal, 0 }).xyz;
+		vertex.position = transform * vertex.position;
 	}
 }
 
-inline void TransformVertexTangents(const Elite::FMatrix4& transform, std::vector<Vertex>& verticesToTransform)
+inline void TransformVertexNormals(const Elite::FMatrix3& transform, std::vector<Vertex>& verticesToTransform)
 {
 	for (Vertex& vertex : verticesToTransform)
 	{
-		vertex.tangent = (transform * FVector4{ vertex.tangent, 0 }).xyz;
+		vertex.normal = transform * vertex.normal;
+	}
+}
+
+inline void TransformVertexTangents(const Elite::FMatrix3& transform, std::vector<Vertex>& verticesToTransform)
+{
+	for (Vertex& vertex : verticesToTransform)
+	{
+		vertex.tangent = transform * vertex.tangent;
 	}
 }
 

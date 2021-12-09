@@ -7,6 +7,8 @@
 
 #include "RenderInfo.h"
 
+#include "Vertex.h"
+
 using namespace Elite;
 
 class Geometry
@@ -24,6 +26,10 @@ public:
 	void SetForward(const FVector3& forward); // Maybe add option to avoid recalculation
 
 	const FMatrix4& GetTransform() const;
+
+	// The great rework begins..
+	virtual void Project(std::vector<Vertex>& vertices) const = 0;
+	virtual bool Rasterize(std::vector<Vertex>& triangleVertices, Vertex& vertexOut) const = 0;
 
 protected:
 	virtual void OnRecalculateTransform();

@@ -5,7 +5,7 @@
 using namespace Elite;
 struct Vertex
 {
-	FPoint4 position{0,0,0, 0};
+	FPoint4 position{};
 	RGBColor color{1,1,1};
 	FVector2 uv{};
 	FVector3 normal{};
