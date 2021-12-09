@@ -90,9 +90,9 @@ int main(int argc, char* args[])
 
 			const RGBColor white{ 1,1,1 };
 
-			std::vector<OBJVertex> verticesFromFile{};
+			std::vector<Vertex> verticesFromFile{};
 			std::vector<uint32_t> indices{};
-			ParseOBJ("Resources/tuktuk.obj", verticesFromFile, indices);
+			ParseOBJ("Resources/vehicle.obj", verticesFromFile, indices);
 
 			//std::vector<Vertex> vertices
 			//{
@@ -122,13 +122,13 @@ int main(int argc, char* args[])
 			//	0,3,1,4,2,5,5,3,3,6,4,7,5,8
 			//};
 
-			std::vector<Vertex> vertices{};
-			for (const OBJVertex& objVertex : verticesFromFile)
-			{
-				vertices.push_back(Vertex{ objVertex.position, white, objVertex.uv, objVertex.normal });
-			}
+			//std::vector<Vertex> vertices{};
+			//for (const OBJVertex& objVertex : verticesFromFile)
+			//{
+			//	vertices.push_back(Vertex{ objVertex.position, white, objVertex.uv, objVertex.normal });
+			//}
 
-			scene.AddGeometryToScene(new TriangleMesh(FPoint3{ 0,0,0 }, vertices, indices));
+			scene.AddGeometryToScene(new TriangleMesh(FPoint3{ 0,0,0 }, verticesFromFile, indices));
 			//scene.AddGeometryToScene(new TriangleMesh(FPoint3{ 0,0,0 }, vertices, indices, PrimitiveTopology::TriangleStrip));
 
 			//scene.AddGeometryToScene(new Triangle(FPoint3{ 0,0,0 },

@@ -1,5 +1,7 @@
 #pragma once
 #include "EMath.h"
+#include <array>
+#include "Vertex.h"
 
 inline float NDCSpaceXToScreenSpaceX(float x, float screenWidth)
 {
@@ -44,4 +46,17 @@ inline void LimitPointToScreenBoundaries(Elite::FPoint2& point, float width, flo
 		point.y = 0;
 	if (point.y >= height)
 		point.y = height - 1.f;
+}
+
+template<typename Type>
+inline Type Interpolate(const std::array<Type, 3>& attributesToInterpolate, 
+						const std::array<const Vertex*, 3>& pOwningVertices, 
+						const float interpolatedLinearDepth)
+{
+	return
+	(
+		attributesToInterpolate[0] / pOwningVertices[0]->position.w * pOwningVertices[0]->weight +
+		attributesToInterpolate[1] / pOwningVertices[1]->position.w * pOwningVertices[1]->weight +
+		attributesToInterpolate[2] / pOwningVertices[2]->position.w * pOwningVertices[2]->weight
+	) * interpolatedLinearDepth;
 }

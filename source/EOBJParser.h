@@ -10,19 +10,20 @@
 #include <fstream>
 #include <vector>
 #include "EMath.h"
+#include "Vertex.h"
 
 namespace Elite
 {
 	//Todo >> Replace with your own structure
-	struct OBJVertex
-	{
-		FPoint3 position;
-		FVector2 uv;
-		FVector3 normal;
-	};
+	//struct OBJVertex
+	//{
+	//	FPoint3 position;
+	//	FVector2 uv;
+	//	FVector3 normal;
+	//};
 
 	//Just parses vertices and indices
-	static bool ParseOBJ(const std::string& filename, std::vector<OBJVertex>& vertices, std::vector<uint32_t>& indices)
+	static bool ParseOBJ(const std::string& filename, std::vector<Vertex>& vertices, std::vector<uint32_t>& indices)
 	{
 		std::ifstream file(filename);
 		if (!file)
@@ -75,7 +76,7 @@ namespace Elite
 				//add the material index as attibute to the attribute array
 				//
 				// Faces or triangles
-				OBJVertex vertex{};
+				Vertex vertex{};
 				size_t iPosition, iTexCoord, iNormal;
 				for (size_t iFace = 0; iFace < 3; iFace++)
 				{
@@ -110,6 +111,36 @@ namespace Elite
 			}
 			//read till end of line and ignore all remaining chars
 			file.ignore(1000, '\n');
+		}
+
+		for (uint32_t i{0}; i < indices.size(); i += 3)
+		{
+			const uint32_t index0 = indices[i];
+			const uint32_t index1 = indices[i + 1];
+			const uint32_t index2 = indices[i + 2];
+
+			const FPoint3& p0 = vertices[index0].position.xyz;
+			const FPoint3& p1 = vertices[index1].position.xyz;
+			const FPoint3& p2 = vertices[index2].position.xyz;
+			const FVector2& uv0 = vertices[index0].uv;
+			const FVector2& uv1 = vertices[index1].uv;
+			const FVector2& uv2 = vertices[index2].uv;
+
+			const FVector3 edge0 = p1 - p0;
+			const FVector3 edge1 = p2 - p0;
+			const FVector2 diffX{ uv1.x - uv0.x, uv2.x - uv0.x };
+			const FVector2 diffY{ uv1.y - uv0.y, uv2.y - uv0.y };
+			const float r = 1.f / Cross(diffX, diffY);
+
+			FVector3 tangent = (edge0 * diffY.y - edge1 * diffY.x) * r;
+			vertices[index0].tangent += tangent;
+			vertices[index1].tangent += tangent;
+			vertices[index2].tangent += tangent;
+		}
+
+		for (Vertex& vertex : vertices)
+		{
+			vertex.tangent = GetNormalized(Reject(vertex.tangent, vertex.normal));
 		}
 
 		return true;

@@ -6,7 +6,7 @@
 #include "MathHelper.h"
 #include "Vertex.h"
 
-inline std::vector<Vertex> TransformVertices(const Elite::FMatrix4& transform, const std::vector<Vertex>& verticesToTransform)
+inline std::vector<Vertex> TransformVertexPositions(const Elite::FMatrix4& transform, const std::vector<Vertex>& verticesToTransform)
 {
 	std::vector<Vertex> output{};
 	for (const Vertex& vertex : verticesToTransform)
@@ -15,6 +15,14 @@ inline std::vector<Vertex> TransformVertices(const Elite::FMatrix4& transform, c
 		output[output.size() - 1].position = transform * vertex.position;
 	}
 	return output;
+}
+
+inline void TransformVertexNormals(const Elite::FMatrix4& transform, std::vector<Vertex>& verticesToTransform)
+{
+	for (Vertex& vertex : verticesToTransform)
+	{
+		vertex.normal = (transform * FVector4{ vertex.normal, 0 }).xyz;
+	}
 }
 
 inline void ApplyCameraCorrection(float fov, float aspectRatio, std::vector<Vertex>& vertices)

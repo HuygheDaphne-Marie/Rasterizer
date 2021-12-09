@@ -28,6 +28,7 @@ private:
 
 	// Dirty texture add (Temp) Todo: remove
 	Texture m_Texture;
+	Texture m_NormalMap;
 
 	void RecalculateWorldVertices();
 	void OnRecalculateTransform() override;
@@ -36,4 +37,6 @@ private:
 
 	void TriangleHit(const RenderInfo& renderInfo, std::vector<Vertex>& triangleVertices) const;
 	bool PixelHit(Elite::FPoint3& pixel, RGBColor& finalColor, std::vector<Vertex>& vertices) const;
+
+	RGBColor PixelShading(const FVector3& normal, const FVector3& tangent, const FVector2& uv, const RGBColor& finalColor) const;
 };
