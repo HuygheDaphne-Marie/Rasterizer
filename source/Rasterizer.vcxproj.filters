@@ -26,6 +26,9 @@
     <Filter Include="Texture">
       <UniqueIdentifier>{4d6a0372-0608-4a29-9007-82fe819b101c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{afc4b8f2-1cdc-4df0-af50-7b05e863a032}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EMath.h">

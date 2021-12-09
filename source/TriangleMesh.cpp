@@ -23,7 +23,8 @@ void TriangleMesh::Hit(const RenderInfo& renderInfo) const
 
 	// projection
 	std::vector<Vertex> transformedVertices{ TransformVertexPositions(pCamera->GetProjection() * pCamera->GetWorldToView(), m_WorldVertices) };
-	TransformVertexNormals(pCamera->GetViewToWorld(), transformedVertices);
+	TransformVertexNormals(GetTransform(), transformedVertices);
+	TransformVertexTangents(GetTransform(), transformedVertices);
 	ApplyPerspectiveDivide(transformedVertices);
 	// vertices are now in NDC
 

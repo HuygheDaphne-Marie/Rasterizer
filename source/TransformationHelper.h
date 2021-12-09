@@ -25,6 +25,14 @@ inline void TransformVertexNormals(const Elite::FMatrix4& transform, std::vector
 	}
 }
 
+inline void TransformVertexTangents(const Elite::FMatrix4& transform, std::vector<Vertex>& verticesToTransform)
+{
+	for (Vertex& vertex : verticesToTransform)
+	{
+		vertex.tangent = (transform * FVector4{ vertex.tangent, 0 }).xyz;
+	}
+}
+
 inline void ApplyCameraCorrection(float fov, float aspectRatio, std::vector<Vertex>& vertices)
 {
 	for (Vertex& vertex : vertices)
