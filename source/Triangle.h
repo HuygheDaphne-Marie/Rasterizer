@@ -12,6 +12,8 @@ public:
 	
 	void Hit(const RenderInfo& renderInfo) const override;
 
+	static bool Hit(const FPoint2& pixel, std::vector<Vertex>& vertices);
+
 private:
 	const FPoint3 m_ModelVertex0;
 	const FPoint3 m_ModelVertex1;

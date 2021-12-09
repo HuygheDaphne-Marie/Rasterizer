@@ -29,7 +29,7 @@ public:
 
 	// The great rework begins..
 	virtual void Project(std::vector<Vertex>& vertices) const = 0;
-	virtual bool Rasterize(std::vector<Vertex>& triangleVertices, Vertex& vertexOut) const = 0;
+	virtual bool Rasterize(std::vector<Vertex>& triangleVertices, std::vector<float>& depthBuffer, Vertex& vertexOut) const = 0;
 
 protected:
 	virtual void OnRecalculateTransform();

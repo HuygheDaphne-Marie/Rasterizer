@@ -49,6 +49,18 @@ inline void LimitPointToScreenBoundaries(Elite::FPoint2& point, float width, flo
 }
 
 template<typename Type>
+inline Type Interpolate(const std::array<Type, 3>& attributesToInterpolate,
+	const std::array<const Vertex*, 3>& pOwningVertices)
+{
+	return
+		1 / (
+			attributesToInterpolate[0] / pOwningVertices[0]->position.w * pOwningVertices[0]->weight +
+			attributesToInterpolate[1] / pOwningVertices[1]->position.w * pOwningVertices[1]->weight +
+			attributesToInterpolate[2] / pOwningVertices[2]->position.w * pOwningVertices[2]->weight
+		);
+}
+
+template<typename Type>
 inline Type Interpolate(const std::array<Type, 3>& attributesToInterpolate, 
 						const std::array<const Vertex*, 3>& pOwningVertices, 
 						const float interpolatedLinearDepth)
@@ -60,6 +72,8 @@ inline Type Interpolate(const std::array<Type, 3>& attributesToInterpolate,
 		attributesToInterpolate[2] / pOwningVertices[2]->position.w * pOwningVertices[2]->weight
 	) * interpolatedLinearDepth;
 }
+
+
 
 template<typename Type>
 inline bool IsInRange(Type value, Type minRange, Type maxRange)

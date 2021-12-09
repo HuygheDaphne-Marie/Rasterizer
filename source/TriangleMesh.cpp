@@ -4,6 +4,8 @@
 #include <tuple>
 #include <array>
 
+#include "Triangle.h"
+
 TriangleMesh::TriangleMesh(const FPoint3& position, const std::vector<Vertex>& vertices, const std::vector<unsigned>& indices, PrimitiveTopology topology)
 	: Geometry(position)
 	, m_ModelVertices(vertices)
@@ -64,7 +66,7 @@ void TriangleMesh::Project(std::vector<Vertex>& vertices) const
 	// Todo: View Direction 
 }
 
-bool TriangleMesh::Rasterize(std::vector<Vertex>& triangleVertices, Vertex& vertexOut) const
+bool TriangleMesh::Rasterize(std::vector<Vertex>& triangleVertices, std::vector<float>& depthBuffer, Vertex& vertexOut) const
 {
 	for (const Vertex& vertex : triangleVertices)
 	{
@@ -92,7 +94,86 @@ bool TriangleMesh::Rasterize(std::vector<Vertex>& triangleVertices, Vertex& vert
 	const FPoint2 topLeft{ std::get<0>(points) };
 	const FPoint2 bottomRight{ std::get<1>(points) };
 
-	return true;
+	FPoint2 pixel{};
+	for (auto row = static_cast<uint32_t>(std::ceilf(topLeft.y)); row < static_cast<uint32_t>(std::ceilf(bottomRight.y)); ++row)
+	{
+		pixel.y = static_cast<float>(row);
+
+		for (auto col = static_cast<uint32_t>(std::ceilf(topLeft.x)); col < static_cast<uint32_t>(std::ceilf(bottomRight.x)); ++col)
+		{
+			pixel.x = static_cast<float>(col);
+			if (Triangle::Hit(pixel, triangleVertices))
+			{
+				const std::array<const Vertex*, 3> triangleVertexPointerArray{ &triangleVertices[0],&triangleVertices[1],&triangleVertices[2] };
+
+				const float zInterpolated
+				{
+					Interpolate
+					(
+						std::array<float, 3>{triangleVertices[0].position.z, triangleVertices[1].position.z, triangleVertices[2].position.z},
+						triangleVertexPointerArray
+					)
+				};
+
+				//1 /
+				//(
+				//	1 / triangleVertices[0].position.z * triangleVertices[0].weight +
+				//	1 / triangleVertices[1].position.z * triangleVertices[1].weight +
+				//	1 / triangleVertices[2].position.z * triangleVertices[2].weight
+				//)
+
+				if (zInterpolated > depthBuffer[PixelToBufferIndex(col, row, width)])
+					return false; // our pixel is not the closest, so we don't have an out (at least not a meaningful one without opacity)
+
+				const float wInterpolated // Made here cause of frequent use
+				{
+					Interpolate
+					(
+						std::array<float, 3>{triangleVertices[0].position.w, triangleVertices[1].position.w, triangleVertices[2].position.w},
+						triangleVertexPointerArray
+					)
+				};
+
+
+				// Depth test success, we have an outVertex
+				vertexOut.position.x = pixel.x;
+				vertexOut.position.y = pixel.y;
+				vertexOut.position.z = zInterpolated;
+				vertexOut.position.w = wInterpolated;
+
+				// Attribute interpolation
+				vertexOut.uv = Interpolate
+				(
+					std::array<FVector2, 3>{triangleVertices[0].uv, triangleVertices[1].uv, triangleVertices[2].uv},
+					triangleVertexPointerArray,
+					wInterpolated
+				);
+				vertexOut.color = Interpolate
+				(
+					std::array<RGBColor, 3>{triangleVertices[0].color, triangleVertices[1].color, triangleVertices[2].color},
+					triangleVertexPointerArray,
+					wInterpolated
+				);
+				vertexOut.normal = Interpolate
+				(
+					std::array<FVector3, 3>{triangleVertices[0].normal, triangleVertices[1].normal, triangleVertices[2].normal},
+					triangleVertexPointerArray,
+					wInterpolated
+				);
+				vertexOut.tangent = Interpolate
+				(
+					std::array<FVector3, 3>{triangleVertices[0].tangent, triangleVertices[1].tangent, triangleVertices[2].tangent},
+					triangleVertexPointerArray,
+					wInterpolated
+				);
+				// Todo: interpolate viewDirection
+
+				return true; // notify success
+			}
+		}
+	}
+
+	return false; 
 }
 
 void TriangleMesh::RecalculateWorldVertices()

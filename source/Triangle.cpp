@@ -58,6 +58,38 @@ void Triangle::Hit(const RenderInfo& renderInfo) const
 	}
 }
 
+bool Triangle::Hit(const FPoint2& pixel, std::vector<Vertex>& vertices)
+{
+	// Hit check
+// crosses point out of the screen cause of right hand rule
+	FVector2 pixelToVertex{ pixel - vertices[0].position.xy };
+	FVector3 edge{ vertices[1].position.xyz - vertices[0].position.xyz };
+	const float crossA = Cross(edge.xy, pixelToVertex);
+	if (crossA > 0.f) // edgeA
+		return false;
+
+	pixelToVertex = pixel - vertices[1].position.xy;
+	edge = vertices[2].position.xyz - vertices[1].position.xyz;
+	const float crossB = Cross(edge.xy, pixelToVertex);
+	if (crossB > 0.f) // edgeB
+		return false;
+
+	pixelToVertex = pixel - vertices[2].position.xy;
+	edge = vertices[0].position.xyz - vertices[2].position.xyz;
+	const float crossC = Cross(edge.xy, pixelToVertex);
+	if (crossC > 0.f) // edgeC
+		return false;
+	// Triangle has been hit at this point
+
+	// Calculate weights
+	const float area{ Cross(FVector2{vertices[0].position.xy - vertices[1].position.xy}, FVector2{vertices[0].position.xy - vertices[2].position.xy}) };
+	vertices[0].weight = crossB / area;
+	vertices[1].weight = crossC / area;
+	vertices[2].weight = crossA / area;
+
+	return true;
+}
+
 bool Triangle::PixelHit(FPoint3& pixel, RGBColor& finalColor, Vertex& vertex0, Vertex& vertex1, Vertex& vertex2) const
 {
 	// Hit check

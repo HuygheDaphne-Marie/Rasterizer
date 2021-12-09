@@ -20,7 +20,7 @@ public:
 	void Hit(const RenderInfo& renderInfo) const override;
 
 	void Project(std::vector<Vertex>& vertices) const override;
-	bool Rasterize(std::vector<Vertex>& triangleVertices, Vertex& vertexOut) const override;
+	bool Rasterize(std::vector<Vertex>& triangleVertices, std::vector<float>& depthBuffer, Vertex& vertexOut) const override;
 
 private:
 	const std::vector<Vertex> m_ModelVertices;
