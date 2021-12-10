@@ -6,18 +6,7 @@
 #include "MathHelper.h"
 #include "Vertex.h"
 
-inline std::vector<Vertex> TransformVertexPositions(const Elite::FMatrix4& transform, const std::vector<Vertex>& verticesToTransform)
-{
-	std::vector<Vertex> output{};
-	for (const Vertex& vertex : verticesToTransform)
-	{
-		output.push_back(vertex);
-		output[output.size() - 1].position = transform * vertex.position;
-	}
-	return output;
-}
-
-inline void TransformVertexPositionsNoCopy(const Elite::FMatrix4& transform, std::vector<Vertex>& verticesToTransform)
+inline void TransformVertexPositions(const Elite::FMatrix4& transform, std::vector<Vertex>& verticesToTransform)
 {
 	for (Vertex& vertex : verticesToTransform)
 	{
@@ -38,15 +27,6 @@ inline void TransformVertexTangents(const Elite::FMatrix3& transform, std::vecto
 	for (Vertex& vertex : verticesToTransform)
 	{
 		vertex.tangent = transform * vertex.tangent;
-	}
-}
-
-inline void ApplyCameraCorrection(float fov, float aspectRatio, std::vector<Vertex>& vertices)
-{
-	for (Vertex& vertex : vertices)
-	{
-		vertex.position.x /= aspectRatio * fov;
-		vertex.position.y /= fov;
 	}
 }
 
@@ -90,22 +70,4 @@ inline std::tuple<Elite::FPoint2, Elite::FPoint2> GetBoundingBox(float width, fl
 	LimitPointToScreenBoundaries(bottomRight, width, height);
 
 	return std::make_tuple(topLeft, bottomRight);
-}
-
-inline void CalculateBarycentricWeights(const FPoint2& pixel, Vertex& vertex0, Vertex& vertex1, Vertex& vertex2)
-{
-	const float area{ Cross(FVector2{vertex0.position.xy - vertex1.position.xy}, FVector2{vertex0.position.xy - vertex2.position.xy}) };
-
-	// swapped compared to slides so sign is positive
-	vertex0.weight = Cross(FVector2{ vertex2.position.xy - vertex1.position.xy }, FVector2{ pixel - vertex1.position.xy }) / area;
-	vertex1.weight = Cross(FVector2{ vertex0.position.xy - vertex2.position.xy }, FVector2{ pixel - vertex2.position.xy }) / area;
-	vertex2.weight = Cross(FVector2{ vertex1.position.xy - vertex0.position.xy }, FVector2{ pixel - vertex0.position.xy }) / area;
-
-	const float totalWeights{ fabs(vertex0.weight + vertex1.weight + vertex2.weight) };
-	if (!AreEqual(totalWeights, 1.0f))
-	{
-		const float weightError{ fabs(totalWeights - 1.0f) };
-		std::cout << "Absolute value of all weights should be == 1, difference is: " << std::to_string(weightError) << std::endl;
-		
-	}
 }

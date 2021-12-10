@@ -43,13 +43,6 @@ void Renderer::Render()
 		}
 	}
 
-	// Old method (It's ass)
-	//const RenderInfo renderInfo{ m_DepthBuffer, m_pBackBuffer, m_pBackBufferPixels, m_RenderDepthBuffer};
-	//for (const Geometry* geometry : activeScene.GetGeometries())
-	//{
-	//	geometry->Hit(renderInfo);
-	//}
-
 	for (const Geometry* geometry : activeScene.GetGeometries())
 	{
 		std::vector<Vertex> geometryVertices{ geometry->GetModelVertices() };
@@ -67,8 +60,9 @@ void Renderer::Render()
 			}
 			else
 			{
-				finalPixelColor = PixelShading(vertex);
-				//finalPixelColor = m_Texture.Sample(vertex.uv);
+				// PixelShading is broken for now Todo: fix it
+				//finalPixelColor = PixelShading(vertex);
+				finalPixelColor = m_Texture.Sample(vertex.uv);
 			}
 
 			m_pBackBufferPixels
@@ -100,6 +94,8 @@ bool Renderer::SaveBackbufferToImage() const
 
 RGBColor Renderer::PixelShading(const Vertex& outVertex) const
 {
+	// WIP, broken
+
 	// Light constants
 	const FVector3 lightDirection{ .577f, -.577f, -.577f };
 	const RGBColor lightColor{ 1.f, 1.f, 1.f };

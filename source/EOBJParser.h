@@ -14,14 +14,6 @@
 
 namespace Elite
 {
-	//Todo >> Replace with your own structure
-	//struct OBJVertex
-	//{
-	//	FPoint3 position;
-	//	FVector2 uv;
-	//	FVector3 normal;
-	//};
-
 	//Just parses vertices and indices
 	static bool ParseOBJ(const std::string& filename, std::vector<Vertex>& vertices, std::vector<uint32_t>& indices)
 	{
@@ -140,7 +132,6 @@ namespace Elite
 
 		for (Vertex& vertex : vertices)
 		{
-			//vertex.tangent = GetNormalized(vertex.normal);
 			vertex.tangent = GetNormalized(Reject(vertex.tangent, vertex.normal));
 		}
 

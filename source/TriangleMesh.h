@@ -17,8 +17,6 @@ public:
 		PrimitiveTopology topology = PrimitiveTopology::TriangleList);
 	~TriangleMesh() override = default;
 
-	void Hit(const RenderInfo& renderInfo) const override;
-
 	std::vector<Vertex> GetModelVertices() const override;
 
 	void Project(std::vector<Vertex>& vertices) const override;
@@ -31,19 +29,10 @@ private:
 
 	PrimitiveTopology m_Topology;
 
-	// Dirty texture add (Temp) Todo: remove
-	Texture m_Texture;
-	Texture m_NormalMap;
-
 	void RecalculateWorldVertices();
 	void OnRecalculateTransform() override;
 
 	bool RasterizeSingleTriangle(std::vector<Vertex>& triangleVertices, std::vector<float>& depthBuffer, std::vector<Vertex>& outVertices) const;
 
 	std::vector<Vertex> GetTriangleVertices(unsigned int triangleNumber, const std::vector<Vertex>& vertices) const;
-
-	void TriangleHit(const RenderInfo& renderInfo, std::vector<Vertex>& triangleVertices) const;
-	bool PixelHit(Elite::FPoint3& pixel, RGBColor& finalColor, std::vector<Vertex>& vertices) const;
-
-	RGBColor PixelShading(const FVector3& normal, const FVector3& tangent, const FVector2& uv, const RGBColor& finalColor) const;
 };

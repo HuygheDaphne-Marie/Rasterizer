@@ -1,11 +1,6 @@
 #pragma once
-#include <SDL_surface.h>
-
 #include "EMath.h"
-#include "ERGBColor.h"
 #include <vector>
-
-#include "RenderInfo.h"
 
 #include "Vertex.h"
 
@@ -17,8 +12,6 @@ public:
 	explicit Geometry(FPoint3 position, FVector3 forward = FVector3{0,0,1});
 	virtual ~Geometry() = default;
 
-	virtual void Hit(const RenderInfo& renderInfo) const = 0;
-
 	const FPoint3& GetPosition() const;
 	void SetPosition(const FPoint3& position); // Maybe add option to avoid recalculation
 
@@ -29,7 +22,6 @@ public:
 
 	virtual std::vector<Vertex> GetModelVertices() const = 0;
 
-	// The great rework begins..
 	virtual void Project(std::vector<Vertex>& vertices) const = 0;
 	virtual bool Rasterize(std::vector<Vertex>& vertices, std::vector<float>& depthBuffer, std::vector<Vertex>& outVertices) const = 0;
 

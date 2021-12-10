@@ -116,9 +116,6 @@
       <Filter>Texture</Filter>
     </ClInclude>
     <ClInclude Include="EOBJParser.h" />
-    <ClInclude Include="RenderInfo.h">
-      <Filter>Renderer</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ERenderer.cpp">
@@ -130,9 +127,6 @@
     </ClCompile>
     <ClCompile Include="Geometry.cpp">
       <Filter>Geometry</Filter>
-    </ClCompile>
-    <ClCompile Include="Singleton.cpp">
-      <Filter>Singleton</Filter>
     </ClCompile>
     <ClCompile Include="Triangle.cpp">
       <Filter>Geometry</Filter>
