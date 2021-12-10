@@ -27,9 +27,11 @@ public:
 
 	const FMatrix4& GetTransform() const;
 
+	virtual std::vector<Vertex> GetModelVertices() const = 0;
+
 	// The great rework begins..
 	virtual void Project(std::vector<Vertex>& vertices) const = 0;
-	virtual bool Rasterize(std::vector<Vertex>& triangleVertices, std::vector<float>& depthBuffer, Vertex& vertexOut) const = 0;
+	virtual bool Rasterize(std::vector<Vertex>& vertices, std::vector<float>& depthBuffer, std::vector<Vertex>& outVertices) const = 0;
 
 protected:
 	virtual void OnRecalculateTransform();

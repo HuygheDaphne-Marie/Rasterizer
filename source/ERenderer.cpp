@@ -8,7 +8,9 @@
 #include "SceneManager.h"
 #include "MathHelper.h"
 
-Renderer::Renderer(SDL_Window * pWindow)
+Renderer::Renderer(SDL_Window* pWindow)
+	: m_Texture("Resources/vehicle_diffuse.png")
+	, m_NormalMap("Resources/vehicle_normal.png")
 {
 	//Initialize
 	m_pWindow = pWindow;
@@ -41,10 +43,47 @@ void Renderer::Render()
 		}
 	}
 
-	const RenderInfo renderInfo{ m_DepthBuffer, m_pBackBuffer, m_pBackBufferPixels, m_RenderDepthBuffer};
+	// Old method (It's ass)
+	//const RenderInfo renderInfo{ m_DepthBuffer, m_pBackBuffer, m_pBackBufferPixels, m_RenderDepthBuffer};
+	//for (const Geometry* geometry : activeScene.GetGeometries())
+	//{
+	//	geometry->Hit(renderInfo);
+	//}
+
 	for (const Geometry* geometry : activeScene.GetGeometries())
 	{
-		geometry->Hit(renderInfo);
+		std::vector<Vertex> geometryVertices{ geometry->GetModelVertices() };
+		geometry->Project(geometryVertices);
+
+		std::vector<Vertex> outVertices{};
+		geometry->Rasterize(geometryVertices, m_DepthBuffer, outVertices);
+
+		for (const Vertex& vertex : outVertices)
+		{
+			RGBColor finalPixelColor;
+			if (m_RenderDepthBuffer)
+			{
+				finalPixelColor = RGBColor{ vertex.position.z, vertex.position.z , vertex.position.z };
+			}
+			else
+			{
+				finalPixelColor = PixelShading(vertex);
+				//finalPixelColor = m_Texture.Sample(vertex.uv);
+			}
+
+			m_pBackBufferPixels
+			[
+				PixelToBufferIndex
+				(
+					static_cast<unsigned int>(roundf(vertex.position.x)),
+					static_cast<unsigned int>(roundf(vertex.position.y)),
+					m_Width
+				)
+			] = SDL_MapRGB(m_pBackBuffer->format,
+				static_cast<Uint8>(finalPixelColor.r * 255.f),
+				static_cast<Uint8>(finalPixelColor.g * 255.f),
+				static_cast<Uint8>(finalPixelColor.b * 255.f));
+		}
 	}
 
 	std::fill(m_DepthBuffer.begin(), m_DepthBuffer.end(), 1.0f);
@@ -57,6 +96,41 @@ void Renderer::Render()
 bool Renderer::SaveBackbufferToImage() const
 {
 	return SDL_SaveBMP(m_pBackBuffer, "BackbufferRender.bmp");
+}
+
+RGBColor Renderer::PixelShading(const Vertex& outVertex) const
+{
+	// Light constants
+	const FVector3 lightDirection{ .577f, -.577f, -.577f };
+	const RGBColor lightColor{ 1.f, 1.f, 1.f };
+	constexpr float intensity{ 2.f };
+
+	// Normal Mapping
+	//const FVector3 binormal{ Cross(outVertex.tangent, outVertex.normal) };
+	//const FMatrix3 tangentSpaceAxis{ outVertex.tangent, binormal, outVertex.normal };
+	//
+	//RGBColor sampledValue{ m_NormalMap.Sample(outVertex.uv) };
+	//sampledValue /= 255.f;
+	//sampledValue.r = 2.f * sampledValue.r - 1.f;
+	//sampledValue.g = 2.f * sampledValue.g - 1.f;
+	//sampledValue.b = 2.f * sampledValue.b - 1.f;
+	//FVector3 newNormal{ sampledValue.r, sampledValue.g, sampledValue.b };
+	//newNormal = tangentSpaceAxis * newNormal;
+	//
+	//const float observedArea{ Dot(-newNormal, lightDirection) };
+
+	// Normal mapping seems to have an issue *somewhere*, below is the old method as a temporary fix
+
+	const float observedArea{ Dot(-outVertex.normal, lightDirection) };
+
+	// Diffuse map color
+	// Todo: lambert
+	const RGBColor diffuseColor{ m_Texture.Sample(outVertex.uv) };
+
+	// Todo: Specular
+	// Todo: Ambient
+
+	return lightColor * intensity * diffuseColor * observedArea;
 }
 
 void Renderer::ToggleRenderDepthBuffer()

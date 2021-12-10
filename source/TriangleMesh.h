@@ -19,8 +19,10 @@ public:
 
 	void Hit(const RenderInfo& renderInfo) const override;
 
+	std::vector<Vertex> GetModelVertices() const override;
+
 	void Project(std::vector<Vertex>& vertices) const override;
-	bool Rasterize(std::vector<Vertex>& triangleVertices, std::vector<float>& depthBuffer, Vertex& vertexOut) const override;
+	bool Rasterize(std::vector<Vertex>& vertices, std::vector<float>& depthBuffer, std::vector<Vertex>& outVertices) const override;
 
 private:
 	const std::vector<Vertex> m_ModelVertices;
@@ -35,6 +37,8 @@ private:
 
 	void RecalculateWorldVertices();
 	void OnRecalculateTransform() override;
+
+	bool RasterizeSingleTriangle(std::vector<Vertex>& triangleVertices, std::vector<float>& depthBuffer, std::vector<Vertex>& outVertices) const;
 
 	std::vector<Vertex> GetTriangleVertices(unsigned int triangleNumber, const std::vector<Vertex>& vertices) const;
 

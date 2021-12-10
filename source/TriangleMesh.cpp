@@ -49,6 +49,11 @@ void TriangleMesh::Hit(const RenderInfo& renderInfo) const
 
 }
 
+std::vector<Vertex> TriangleMesh::GetModelVertices() const
+{
+	return m_ModelVertices;
+}
+
 // The Great Rework
 void TriangleMesh::Project(std::vector<Vertex>& vertices) const
 {
@@ -58,6 +63,7 @@ void TriangleMesh::Project(std::vector<Vertex>& vertices) const
 	// Positions
 	TransformVertexPositionsNoCopy(pCamera->GetProjection() * pCamera->GetWorldToView() * GetTransform(), vertices);
 	ApplyPerspectiveDivide(vertices);
+	// Vertices now in NDC space
 
 	// Normal & Tangent
 	TransformVertexNormals(GetTransform(), vertices);
@@ -65,16 +71,52 @@ void TriangleMesh::Project(std::vector<Vertex>& vertices) const
 
 	// Todo: View Direction 
 }
+bool TriangleMesh::Rasterize(std::vector<Vertex>& vertices, std::vector<float>& depthBuffer, std::vector<Vertex>& outVertices) const
+{
+	unsigned int maxIndex{};
+	switch (m_Topology)
+	{
+	case PrimitiveTopology::TriangleList:
+		maxIndex = static_cast<unsigned int>(m_Indices.size()) / 3;
+		break;
+	case PrimitiveTopology::TriangleStrip:
+		maxIndex = static_cast<unsigned int>(m_Indices.size()) - 2;
+		break;
+	}
 
-bool TriangleMesh::Rasterize(std::vector<Vertex>& triangleVertices, std::vector<float>& depthBuffer, Vertex& vertexOut) const
+	for (unsigned int i{ 0 }; i < maxIndex; ++i)
+	{
+		std::vector<Vertex> triangleVertices{ GetTriangleVertices(i, vertices) };
+		RasterizeSingleTriangle(triangleVertices, depthBuffer, outVertices);
+	}
+
+	return !outVertices.empty();
+}
+
+void TriangleMesh::RecalculateWorldVertices()
+{
+	for (unsigned int i{0}; i < m_ModelVertices.size(); ++i)
+	{
+		m_WorldVertices[i].position = GetTransform() * m_ModelVertices[i].position;
+	}
+}
+void TriangleMesh::OnRecalculateTransform()
+{
+	RecalculateWorldVertices();
+}
+
+bool TriangleMesh::RasterizeSingleTriangle(std::vector<Vertex>& triangleVertices, std::vector<float>& depthBuffer, std::vector<Vertex>& outVertices) const
 {
 	for (const Vertex& vertex : triangleVertices)
 	{
+		// This has been disabled, so that triangles which only have a tiny part of them outside the screen, still get rendered
+		// cause if one vertex is out of the screen, the whole triangle is culled
+		
 		// if vertex doesn't fit in NDC space (outside the view of the screen)
-		if (!IsInRange(vertex.position.x, 0.f, 1.f))
-			return false;
-		if (!IsInRange(vertex.position.y, 0.f, 1.f))
-			return false;
+		//if (!IsInRange(vertex.position.x, -1.f, 1.f))
+		//	return false;
+		//if (!IsInRange(vertex.position.y, -1.f, 1.f))
+		//	return false;
 
 		// closer than near plane or further than far plane
 		if (!IsInRange(vertex.position.z, 0.f, 1.f))
@@ -87,7 +129,7 @@ bool TriangleMesh::Rasterize(std::vector<Vertex>& triangleVertices, std::vector<
 	const Camera* pCamera{ SceneManager::GetInstance().GetActiveScene().GetCamera() };
 	const int width{ pCamera->GetScreenWidth() };
 	const int height{ pCamera->GetScreenHeight() };
-	VerticesToScreenSpace(pCamera->GetScreenWidth(), height, triangleVertices);
+	VerticesToScreenSpace(width, height, triangleVertices);
 
 	// Make bounding box around triangle, so we check the least amount of pixels 
 	const std::tuple<FPoint2, FPoint2> points{ GetBoundingBox(static_cast<float>(width), static_cast<float>(height), triangleVertices) };
@@ -104,63 +146,72 @@ bool TriangleMesh::Rasterize(std::vector<Vertex>& triangleVertices, std::vector<
 			pixel.x = static_cast<float>(col);
 			if (Triangle::Hit(pixel, triangleVertices))
 			{
-				const std::array<const Vertex*, 3> triangleVertexPointerArray{ &triangleVertices[0],&triangleVertices[1],&triangleVertices[2] };
-
 				const float zInterpolated
 				{
-					Interpolate
+					1 /
 					(
-						std::array<float, 3>{triangleVertices[0].position.z, triangleVertices[1].position.z, triangleVertices[2].position.z},
-						triangleVertexPointerArray
+						1 / triangleVertices[0].position.z * triangleVertices[0].weight +
+						1 / triangleVertices[1].position.z * triangleVertices[1].weight +
+						1 / triangleVertices[2].position.z * triangleVertices[2].weight
 					)
 				};
 
-				//1 /
+				//Interpolate // broken it seems
 				//(
-				//	1 / triangleVertices[0].position.z * triangleVertices[0].weight +
-				//	1 / triangleVertices[1].position.z * triangleVertices[1].weight +
-				//	1 / triangleVertices[2].position.z * triangleVertices[2].weight
+				//	std::array<float, 3>{triangleVertices[0].position.z, triangleVertices[1].position.z, triangleVertices[2].position.z},
+				//	triangleVertexPointerArray
 				//)
 
 				if (zInterpolated > depthBuffer[PixelToBufferIndex(col, row, width)])
-					return false; // our pixel is not the closest, so we don't have an out (at least not a meaningful one without opacity)
+					continue; // our pixel is not the closest, so we don't have an out (at least not a meaningful one without opacity)
+
+				depthBuffer[PixelToBufferIndex(col, row, width)] = zInterpolated;
 
 				const float wInterpolated // Made here cause of frequent use
 				{
-					Interpolate
+					1 /
 					(
-						std::array<float, 3>{triangleVertices[0].position.w, triangleVertices[1].position.w, triangleVertices[2].position.w},
-						triangleVertexPointerArray
+						1 / triangleVertices[0].position.w * triangleVertices[0].weight +
+						1 / triangleVertices[1].position.w * triangleVertices[1].weight +
+						1 / triangleVertices[2].position.w * triangleVertices[2].weight
 					)
+
 				};
 
+				//Interpolate
+				//(
+				//	std::array<float, 3>{triangleVertices[0].position.w, triangleVertices[1].position.w, triangleVertices[2].position.w},
+				//	triangleVertexPointerArray
+				//)
 
+				Vertex outVertex{};
 				// Depth test success, we have an outVertex
-				vertexOut.position.x = pixel.x;
-				vertexOut.position.y = pixel.y;
-				vertexOut.position.z = zInterpolated;
-				vertexOut.position.w = wInterpolated;
+				outVertex.position.x = pixel.x;
+				outVertex.position.y = pixel.y;
+				outVertex.position.z = zInterpolated;
+				outVertex.position.w = wInterpolated;
 
 				// Attribute interpolation
-				vertexOut.uv = Interpolate
+				const std::array<const Vertex*, 3> triangleVertexPointerArray{ &triangleVertices[0],&triangleVertices[1],&triangleVertices[2] };
+				outVertex.uv = Interpolate
 				(
 					std::array<FVector2, 3>{triangleVertices[0].uv, triangleVertices[1].uv, triangleVertices[2].uv},
 					triangleVertexPointerArray,
 					wInterpolated
 				);
-				vertexOut.color = Interpolate
+				outVertex.color = Interpolate
 				(
 					std::array<RGBColor, 3>{triangleVertices[0].color, triangleVertices[1].color, triangleVertices[2].color},
 					triangleVertexPointerArray,
 					wInterpolated
 				);
-				vertexOut.normal = Interpolate
+				outVertex.normal = Interpolate
 				(
 					std::array<FVector3, 3>{triangleVertices[0].normal, triangleVertices[1].normal, triangleVertices[2].normal},
 					triangleVertexPointerArray,
 					wInterpolated
 				);
-				vertexOut.tangent = Interpolate
+				outVertex.tangent = Interpolate
 				(
 					std::array<FVector3, 3>{triangleVertices[0].tangent, triangleVertices[1].tangent, triangleVertices[2].tangent},
 					triangleVertexPointerArray,
@@ -168,24 +219,12 @@ bool TriangleMesh::Rasterize(std::vector<Vertex>& triangleVertices, std::vector<
 				);
 				// Todo: interpolate viewDirection
 
-				return true; // notify success
+				outVertices.push_back(outVertex);
 			}
 		}
 	}
 
-	return false; 
-}
-
-void TriangleMesh::RecalculateWorldVertices()
-{
-	for (unsigned int i{0}; i < m_ModelVertices.size(); ++i)
-	{
-		m_WorldVertices[i].position = GetTransform() * m_ModelVertices[i].position;
-	}
-}
-void TriangleMesh::OnRecalculateTransform()
-{
-	RecalculateWorldVertices();
+	return !outVertices.empty();
 }
 
 std::vector<Vertex> TriangleMesh::GetTriangleVertices(unsigned triangleNumber, const std::vector<Vertex>& vertices) const
@@ -319,7 +358,7 @@ void TriangleMesh::TriangleHit(const RenderInfo& renderInfo, std::vector<Vertex>
 					};
 
 					// Color
-					finalColor = m_Texture.Sample(uvInterpolated);
+					//finalColor = m_Texture.Sample(uvInterpolated);
 					finalColor = PixelShading(normalInterpolated, tangentInterpolated, uvInterpolated, finalColor);
 					finalColor.MaxToOne();
 
@@ -370,17 +409,17 @@ bool TriangleMesh::PixelHit(FPoint3& pixel, RGBColor& finalColor, std::vector<Ve
 	//}
 
 	// Non linear depth (Used in depthBuffer)
-	const float zInterpolated
-	{
-		1 / 
-		(
-			1 / vertices[0].position.z * vertices[0].weight +
-			1 / vertices[1].position.z * vertices[1].weight +
-			1 / vertices[2].position.z * vertices[2].weight
-		)
-	};
-
-	pixel.z = zInterpolated;
+	//const float zInterpolated
+	//{
+	//	1 / 
+	//	(
+	//		1 / vertices[0].position.z * vertices[0].weight +
+	//		1 / vertices[1].position.z * vertices[1].weight +
+	//		1 / vertices[2].position.z * vertices[2].weight
+	//	)
+	//};
+	//pixel.z = zInterpolated;
+	
 	// z check
 	//if (zInterpolated < 0.f || zInterpolated > 1.0f)
 	//{

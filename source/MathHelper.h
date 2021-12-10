@@ -48,17 +48,18 @@ inline void LimitPointToScreenBoundaries(Elite::FPoint2& point, float width, flo
 		point.y = height - 1.f;
 }
 
-template<typename Type>
-inline Type Interpolate(const std::array<Type, 3>& attributesToInterpolate,
-	const std::array<const Vertex*, 3>& pOwningVertices)
-{
-	return
-		1 / (
-			attributesToInterpolate[0] / pOwningVertices[0]->position.w * pOwningVertices[0]->weight +
-			attributesToInterpolate[1] / pOwningVertices[1]->position.w * pOwningVertices[1]->weight +
-			attributesToInterpolate[2] / pOwningVertices[2]->position.w * pOwningVertices[2]->weight
-		);
-}
+// Broken
+//template<typename Type>
+//inline Type Interpolate(const std::array<Type, 3>& attributesToInterpolate,
+//	const std::array<const Vertex*, 3>& pOwningVertices)
+//{
+//	return
+//		1 / (
+//			attributesToInterpolate[0] / pOwningVertices[0]->position.w * pOwningVertices[0]->weight +
+//			attributesToInterpolate[1] / pOwningVertices[1]->position.w * pOwningVertices[1]->weight +
+//			attributesToInterpolate[2] / pOwningVertices[2]->position.w * pOwningVertices[2]->weight
+//		);
+//}
 
 template<typename Type>
 inline Type Interpolate(const std::array<Type, 3>& attributesToInterpolate, 

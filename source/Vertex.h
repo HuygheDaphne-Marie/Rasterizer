@@ -10,5 +10,5 @@ struct Vertex
 	FVector2 uv{};
 	FVector3 normal{};
 	FVector3 tangent{};
-	float weight{0}; // barycentric
+	float weight{}; // barycentric
 };

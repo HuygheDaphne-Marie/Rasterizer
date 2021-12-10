@@ -140,6 +140,7 @@ namespace Elite
 
 		for (Vertex& vertex : vertices)
 		{
+			//vertex.tangent = GetNormalized(vertex.normal);
 			vertex.tangent = GetNormalized(Reject(vertex.tangent, vertex.normal));
 		}
 

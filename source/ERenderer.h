@@ -11,6 +11,9 @@
 #include <cstdint>
 #include <vector>
 
+#include "Texture.h"
+#include "Vertex.h"
+
 struct SDL_Window;
 struct SDL_Surface;
 
@@ -30,6 +33,8 @@ namespace Elite
 		void Render();
 		bool SaveBackbufferToImage() const;
 
+		RGBColor PixelShading(const Vertex& outVertex) const;
+
 		void ToggleRenderDepthBuffer();
 
 	private:
@@ -41,6 +46,9 @@ namespace Elite
 		uint32_t m_Height = 0;
 
 		std::vector<float> m_DepthBuffer;
+
+		Texture m_Texture;
+		Texture m_NormalMap;
 
 		bool m_RenderDepthBuffer = false;
 	};
